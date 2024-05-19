@@ -122,7 +122,7 @@ for file in filelist:
     match = re.search(pattern, file[1])
     if match:
         non_shared_value,overlaps_value = match.groups()
-        display(HTML(f"<h2>Non-shared lugs: {non_shared_value}. Overlaps: {overlaps_value}</h2>"))
+        print(HTML(f"Non-shared lugs: {non_shared_value}. Overlaps: {overlaps_value}"))
     
     
        
