@@ -5,7 +5,7 @@ import tqdm  # tqdm is a library that provides a progress bar for loops and task
 from _1_keygen_json import KeyGen  # _1_keygen_json is a custom module for generating encryption keys. KeyGen is a class from this module used specifically for creating keys.
 
 # Configuration parameters
-keys_per_file = 1000
+keys_per_file = 100_000
 num_key_files = 20
 
 
