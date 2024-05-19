@@ -1,11 +1,11 @@
-# Import necessary libraries 
-import multiprocessing #  is used to speed up the key generation process by utilizing multiple CPU cores.
-import os #module provides a way of using operating system dependent functionality like reading or writing to a file.
-import tqdm # tqdm is a library that provides a progress bar for loops and tasks in the notebook.
-from _1_keygen_json import KeyGen # _1_keygen_json is a custom module for generating encryption keys. KeyGen is a class from this module used specifically for creating keys.
+# Import necessary libraries
+import multiprocessing  # is used to speed up the key generation process by utilizing multiple CPU cores.
+import os  # module provides a way of using operating system dependent functionality like reading or writing to a file.
+import tqdm  # tqdm is a library that provides a progress bar for loops and tasks in the notebook.
+from _1_keygen_json import KeyGen  # _1_keygen_json is a custom module for generating encryption keys. KeyGen is a class from this module used specifically for creating keys.
 
 # Configuration parameters
-keys_per_file = 100_000
+keys_per_file = 1000
 num_key_files = 20
 
 
