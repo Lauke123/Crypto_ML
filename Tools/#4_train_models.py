@@ -189,11 +189,11 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
             model_pin.compile(optimizer=optimizers.Adam(), loss='binary_crossentropy', metrics=['accuracy'])
 
             # Setup callbacks for model saving and learning rate scheduling
-            checkpoint_cb_pin = callbacks.ModelCheckpoint(PATH_MODELS+f'/best_model_wheel_{wheel}_pin_{pin}.h5', save_best_only=True)
+            checkpoint_cb_pin = callbacks.ModelCheckpoint(PATH_MODELS+f'/best_model_wheel_{wheel}_pin_{pin}.keras', save_best_only=True)
             lr_scheduler_cb_pin = callbacks.LearningRateScheduler(lambda epoch: 1e-3 * 0.95 ** epoch)
 
             # Train the model
-            history_pin = model_pin.fit(X_train, y_train, batch_size=1000, epochs=10, validation_split=0.2, callbacks=[checkpoint_cb_pin, lr_scheduler_cb_pin])
+            history_pin = model_pin.fit(X_train, y_train, batch_size=1000, epochs=1, validation_split=0.2, callbacks=[checkpoint_cb_pin, lr_scheduler_cb_pin])
             # Evaluate the model on the test set
             test_loss_pin, test_accuracy_pin = model_pin.evaluate(X_test, y_test)
             print(f"Seq Length {seq_len}, Wheel {wheel}, Pin {pin}: Test Loss: {test_loss_pin}, Test Accuracy: {test_accuracy_pin}")
@@ -268,11 +268,11 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
             model_pin.compile(optimizer=optimizers.Adam(), loss='binary_crossentropy', metrics=['accuracy'])
 
             # Setup callbacks for model saving and learning rate scheduling
-            checkpoint_cb_pin = callbacks.ModelCheckpoint(PATH_MODELS+f'/best_model_wheel_{wheel}_pin_{pin}.h5', save_best_only=True)
+            checkpoint_cb_pin = callbacks.ModelCheckpoint(PATH_MODELS+f'/best_model_wheel_{wheel}_pin_{pin}.keras', save_best_only=True)
             lr_scheduler_cb_pin = callbacks.LearningRateScheduler(lambda epoch: 1e-3 * 0.95 ** epoch)
 
             # Train the model
-            history_pin = model_pin.fit(X_train, y_train, batch_size=260, epochs=10, validation_split=0.2, callbacks=[checkpoint_cb_pin, lr_scheduler_cb_pin])
+            history_pin = model_pin.fit(X_train, y_train, batch_size=260, epochs=1, validation_split=0.2, callbacks=[checkpoint_cb_pin, lr_scheduler_cb_pin])
             # Evaluate the model on the test set
             test_loss_pin, test_accuracy_pin = model_pin.evaluate(X_test, y_test)
             print(f"Seq Length {seq_len}, Wheel {wheel}, Pin {pin}: Test Loss: {test_loss_pin}, Test Accuracy: {test_accuracy_pin}")
@@ -343,11 +343,11 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
             model_pin.compile(optimizer=optimizers.Adam(), loss='binary_crossentropy', metrics=['accuracy'])
 
             # Setup callbacks for model saving and learning rate scheduling
-            checkpoint_cb_pin = callbacks.ModelCheckpoint(PATH_MODELS+f'/best_model_wheel_{wheel}_pin_{pin}.h5', save_best_only=True)
+            checkpoint_cb_pin = callbacks.ModelCheckpoint(PATH_MODELS+f'/best_model_wheel_{wheel}_pin_{pin}.keras', save_best_only=True)
             lr_scheduler_cb_pin = callbacks.LearningRateScheduler(lambda epoch: 1e-3 * 0.95 ** epoch)
 
             # Train the model
-            history_pin = model_pin.fit(X_train, y_train, batch_size=520, epochs=10, validation_split=0.2, callbacks=[checkpoint_cb_pin, lr_scheduler_cb_pin])
+            history_pin = model_pin.fit(X_train, y_train, batch_size=520, epochs=1, validation_split=0.2, callbacks=[checkpoint_cb_pin, lr_scheduler_cb_pin])
             # Evaluate the model on the test set
             test_loss_pin, test_accuracy_pin = model_pin.evaluate(X_test, y_test)
             print(f"Seq Length {seq_len}, Wheel {wheel}, Pin {pin}: Test Loss: {test_loss_pin}, Test Accuracy: {test_accuracy_pin}")
