@@ -13,17 +13,20 @@ import tqdm
 # import multiprocessing
 from matplotlib import pyplot as plt  # Add this line for plotting
 import re
-from IPython.core.display import HTML
-
-
-
 
 # Define paths to the working directories and data
 current_directory = os.getcwd()
 WORKING_DIR = os.path.join(current_directory, "..")
 
 PATH_DATA = os.path.join(WORKING_DIR, "Data") 
-
+PATH_TEST_PLOTS = os.path.join(PATH_DATA, "Plots")
+PATH_TEST_PLOTS_52 = os.path.join(PATH_TEST_PLOTS, "model_52")
+PATH_TEST_PLOTS_104 = os.path.join(PATH_TEST_PLOTS, "model_104")
+PATH_TEST_PLOTS_200 = os.path.join(PATH_TEST_PLOTS, "model_200")
+os.makedirs(PATH_TEST_PLOTS, exist_ok=True)
+os.makedirs(PATH_TEST_PLOTS_52, exist_ok=True)
+os.makedirs(PATH_TEST_PLOTS_104, exist_ok=True)
+os.makedirs(PATH_TEST_PLOTS_200, exist_ok=True)
 PATH_TESTING_DATA = os.path.join(PATH_DATA, "3_data_npy_test")
 WHEEL = "Wheel1"
 PATH_TESTING_DATA = os.path.join(PATH_TESTING_DATA, WHEEL)
@@ -122,7 +125,7 @@ for file in filelist:
     match = re.search(pattern, file[1])
     if match:
         non_shared_value,overlaps_value = match.groups()
-        print(HTML(f"Non-shared lugs: {non_shared_value}. Overlaps: {overlaps_value}"))
+        print(f"Non-shared lugs: {non_shared_value}. Overlaps: {overlaps_value}")
     
     
        
@@ -173,7 +176,7 @@ for file in filelist:
     plt.title("Distribution of Prediction Accuracies")
     plt.xlabel("Accuracy (%)")
     plt.ylabel("Frequency")
-    plt.show()
+    plt.savefig(PATH_TEST_PLOTS_52 + "/" + f"Non_shared_lugs_{non_shared_value}_Overlaps_{overlaps_value}")
     
     # Second Histogram
     plt.clf()  # Clear the previous figure again before the next plot
@@ -273,20 +276,21 @@ accuracies = [(count / len(model_lst)) * 100 for count in correct_counts]
 average_accuracy = np.mean(accuracies)
 
 # Plotting the accuracy distribution
+plt.clf()  # Clear the previous figure
 counts, bin_edges, _ = plt.hist(accuracies, bins=53, color='lightgray', alpha=0.7, edgecolor='black')
 plt.title("Accuracy distribution")
 plt.xlabel("Accuracy (%)")
 plt.ylabel("Frequency")
 
+plt.clf()  # Clear the previous figure
 # Show average accuracy on the graph
 plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
 plt.text(average_accuracy, max(counts)/2, f'Average: {average_accuracy:.2f}%', rotation=90)
-
-plt.show()
-
+plt.savefig(PATH_TEST_PLOTS_52 + "/" + "average_accuracy")
 
 
 
+plt.clf()  # Clear the previous figure
 # Adjust the number of bins manually based on your data's characteristics
 adjusted_bins = 22  # Example: set to 20, adjust based on your data's distribution
 plt.hist(accuracies, bins=adjusted_bins, color='lightgray', alpha=0.7, edgecolor='black')
@@ -295,7 +299,7 @@ plt.xlabel("Accuracy (%)")
 plt.ylabel("Frequency")
 plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
 plt.text(average_accuracy, plt.ylim()[1]/2, f'Average: {average_accuracy:.2f}%', rotation=90)
-plt.show()
+plt.savefig(PATH_TEST_PLOTS_52 + "/" + "average_accuracy_adjusted")
 
 
 
@@ -357,6 +361,7 @@ accuracies = [(count / len(model_lst)) * 100 for count in correct_counts]
 # Calculate average accuracy
 average_accuracy = np.mean(accuracies)
 
+plt.clf()  # Clear the previous figure
 # Plotting the accuracy distribution
 counts, bin_edges, _ = plt.hist(accuracies, bins=53, color='lightgray', alpha=0.7, edgecolor='black')
 plt.title("Accuracy distribution")
@@ -367,11 +372,9 @@ plt.ylabel("Frequency")
 plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
 plt.text(average_accuracy, max(counts)/2, f'Average: {average_accuracy:.2f}%', rotation=90)
 
-plt.show()
+plt.savefig(PATH_TEST_PLOTS_104 + "/" + "average_accuracy")
 
-
-
-
+plt.clf()  # Clear the previous figure
 # Adjust the number of bins manually based on your data's characteristics
 adjusted_bins = 21  # Example: set to 20, adjust based on your data's distribution
 plt.hist(accuracies, bins=adjusted_bins, color='lightgray', alpha=0.7, edgecolor='black')
@@ -380,7 +383,7 @@ plt.xlabel("Accuracy (%)")
 plt.ylabel("Frequency")
 plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
 plt.text(average_accuracy, plt.ylim()[1]/2, f'Average: {average_accuracy:.2f}%', rotation=90)
-plt.show()
+plt.savefig(PATH_TEST_PLOTS_104 + "/" + "average_accuracy_adjusted")
 
 
 
@@ -442,6 +445,7 @@ accuracies = [(count / len(model_lst)) * 100 for count in correct_counts]
 # Calculate average accuracy
 average_accuracy = np.mean(accuracies)
 
+plt.clf()  # Clear the previous figure
 # Plotting the accuracy distribution
 counts, bin_edges, _ = plt.hist(accuracies, bins=53, color='lightgray', alpha=0.7, edgecolor='black')
 plt.title("Accuracy distribution")
@@ -452,11 +456,11 @@ plt.ylabel("Frequency")
 plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
 plt.text(average_accuracy, max(counts)/2, f'Average: {average_accuracy:.2f}%', rotation=90)
 
-plt.show()
+plt.savefig(PATH_TEST_PLOTS_200 + "/" + "average_accuracy")
 
 
 
-
+plt.clf()  # Clear the previous figure
 # Adjust the number of bins manually based on your data's characteristics
 adjusted_bins = 20  # Example: set to 20, adjust based on your data's distribution
 plt.hist(accuracies, bins=adjusted_bins, color='lightgray', alpha=0.7, edgecolor='black')
@@ -465,20 +469,9 @@ plt.xlabel("Accuracy (%)")
 plt.ylabel("Frequency")
 plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
 plt.text(average_accuracy, plt.ylim()[1]/2, f'Average: {average_accuracy:.2f}%', rotation=90)
-plt.show()
+plt.savefig(PATH_TEST_PLOTS_200 + "/" + "average_accuracy_adjusted")
 
 
 
 
 accuracies = [(count / 26) * 100 for count in correct_counts]
-
-
-
-
-
-
-
-
-
-
-

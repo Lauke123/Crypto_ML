@@ -6,7 +6,14 @@ import pandas as pd
 import tqdm
 import multiprocessing
 
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from tensorflow.keras import layers, models, callbacks, optimizers
+from tensorflow.keras.regularizers import l2
+import gc
 
+from tensorflow import keras
+from tensorflow.keras import layers
 # Constants for defining the range of overlaps as a string
 NUMBER_OF_OVERLAPS = "1-12"
 
@@ -111,9 +118,6 @@ def load_partial_data(count, records_per_file):
 
     return x, y
 
-from tensorflow import keras
-from tensorflow.keras import layers
-
 # Define your ResNet-like architecture
 def make_resnet(input_length, num_filters=32, num_outputs=1, d1=512, d2=512, ks=5, depth=5, reg_param=0.0002, final_activation='sigmoid'):
     inp = layers.Input(shape=(input_length, 1))
@@ -149,14 +153,7 @@ def make_resnet(input_length, num_filters=32, num_outputs=1, d1=512, d2=512, ks=
 
 # Import necessary libraries for data manipulation, machine learning model building, and memory management
 
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-from sklearn.model_selection import train_test_split
-from tensorflow.keras import layers, models, callbacks, optimizers
-from tensorflow.keras.regularizers import l2
-import gc
-import os
+
 # Define input size for the model and the path where models will be saved
 INPUT_SIZE = 200
 PATH_MODELS =os.path.join(PATH_MODELS_PARENT,f"models_seq_{INPUT_SIZE}")
@@ -236,14 +233,7 @@ accuracy_df = pd.DataFrame(model_accuracies)
 accuracy_df.to_excel('model_accuracies.xlsx', index=False)
 
 # Same code as above but for different sequence length
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-from sklearn.model_selection import train_test_split
-from tensorflow.keras import layers, models, callbacks, optimizers
-from tensorflow.keras.regularizers import l2
-import gc
-import os
+
 
 #Sequence lenght
 INPUT_SIZE = 104
@@ -321,14 +311,7 @@ accuracy_df = pd.DataFrame(model_accuracies)
 # Save the DataFrame to an Excel file
 accuracy_df.to_excel('model_accuracies.xlsx', index=False)
 
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-from sklearn.model_selection import train_test_split
-from tensorflow.keras import layers, models, callbacks, optimizers
-from tensorflow.keras.regularizers import l2
-import gc
-import os
+
 INPUT_SIZE = 52
 PATH_MODELS =os.path.join(PATH_MODELS_PARENT,f"models_seq_{INPUT_SIZE}")
 os.makedirs(PATH_MODELS, exist_ok=True)

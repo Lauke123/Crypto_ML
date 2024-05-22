@@ -12,41 +12,11 @@ import numpy as np
 import json
 import re
 
-
-
-
-# Configuration parameters
-NUMBER_OF_OVERLAPS = "1-12"
-
-# Setting up the directory paths
-current_directory = os.getcwd()
-WORKING_DIR = os.path.join(current_directory, "..")
-
-PATH_DATA = os.path.join(WORKING_DIR, "Data") 
-
-PATH_CIPHERTEXTS = os.path.join(PATH_DATA, "2_ciphertexts_test")
-
-PATH_TESTING_DATA = os.path.join(PATH_DATA, "3_data_npy_test")
-os.makedirs(PATH_TESTING_DATA, exist_ok=True)
-
-WHEEL = "Wheel1" # In this example working just with Wheel 1
-
-PATH_TESTING_DATA = os.path.join(PATH_TESTING_DATA, WHEEL)
-os.makedirs(PATH_TESTING_DATA, exist_ok=True)
-
-#NUMBER_CORS = multiprocessing.cpu_count()
-NUMBER_CORS = 50
-
-
-#NUMBER_CORS = multiprocessing.cpu_count()
-NUMBER_CORS = 12
-
-
-
-
 length=500
 
-def load_data(file):
+def load_data(x):
+
+    file, path_testing_data  = x
 
     wheels = ["ABCDEFGHIJKLMNOPQRSTUVWXYZ",
               "ABCDEFGHIJKLMNOPQRSTUVXYZ",
@@ -85,22 +55,45 @@ def load_data(file):
     n, o = match.groups()
     
 
-    np.save(f"{PATH_TESTING_DATA  + '/'}x_{length}-non-shared-lugs{n}-overlaps{o}.npy", x)
-    print (f"{PATH_TESTING_DATA  + '/'}x_{length}-non-shared-lugs{n}-overlaps{o}.npy")
-    np.save(f"{PATH_TESTING_DATA  + '/'}y_{length}-non-shared-lugs{n}-overlaps{o}.npy", y)
+    np.save(f"{path_testing_data  + '/'}x_{length}-non-shared-lugs{n}-overlaps{o}.npy", x)
+    print (f"{path_testing_data + '/'}x_{length}-non-shared-lugs{n}-overlaps{o}.npy")
+    np.save(f"{path_testing_data  + '/'}y_{length}-non-shared-lugs{n}-overlaps{o}.npy", y)
+
+if __name__ == "__main__":
+    # Configuration parameters
+    NUMBER_OF_OVERLAPS = "1-12"
+
+    # Setting up the directory paths
+    current_directory = os.getcwd()
+    WORKING_DIR = os.path.join(current_directory, "..")
+
+    PATH_DATA = os.path.join(WORKING_DIR, "Data") 
+
+    PATH_CIPHERTEXTS = os.path.join(PATH_DATA, "2_ciphertexts_test")
+
+    PATH_TESTING_DATA = os.path.join(PATH_DATA, "3_data_npy_test")
+    os.makedirs(PATH_TESTING_DATA, exist_ok=True)
+
+    WHEEL = "Wheel1" # In this example working just with Wheel 1
+
+    PATH_TESTING_DATA = os.path.join(PATH_TESTING_DATA, WHEEL)
+    os.makedirs(PATH_TESTING_DATA, exist_ok=True)
+
+
+    #NUMBER_CORS = multiprocessing.cpu_count()
+    NUMBER_CORS = os.cpu_count()
+
+    
+
+    os.chdir(PATH_CIPHERTEXTS)
+    # Compile a list of files to be processed
+    filelist = [(PATH_CIPHERTEXTS + '/'  + file, PATH_TESTING_DATA) for file in os.listdir(PATH_CIPHERTEXTS + '/' ) if "_cipher" in file]
+    #print (filelist)
 
 
 
 
-os.chdir(PATH_CIPHERTEXTS)
-# Compile a list of files to be processed
-filelist = [PATH_CIPHERTEXTS + '/'  + file for file in os.listdir(PATH_CIPHERTEXTS + '/' ) if "_cipher" in file]
-#print (filelist)
-
-
-
-
-# Use multiprocessing to process files in parallel for efficiency
-with multiprocessing.Pool(NUMBER_CORS) as pool:
-    for _ in pool.imap(load_data, filelist):
-        pass
+    # Use multiprocessing to process files in parallel for efficiency
+    with multiprocessing.Pool(NUMBER_CORS) as pool:
+        for _ in pool.imap(load_data, filelist):
+            pass
