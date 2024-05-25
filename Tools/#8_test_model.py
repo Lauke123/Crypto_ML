@@ -7,12 +7,12 @@
 import os
 import random
 import numpy as np
-from tensorflow import keras
 # import pandas as pd
 import tqdm
 # import multiprocessing
 from matplotlib import pyplot as plt  # Add this line for plotting
 import re
+import torch
 
 # Define paths to the working directories and data
 current_directory = os.getcwd()
@@ -36,14 +36,14 @@ PATH_MODELS_PARENT = os.path.join(PATH_DATA, "models")
 
 
 
-INPUT_SIZE = 52 # Fixed input size for the models
+INPUT_SIZE = 200 # Fixed input size for the models
 PATH_MODELS =os.path.join(PATH_MODELS_PARENT,f"models_seq_{INPUT_SIZE}/")
 
 # Load and prepare models for evaluation
 model_lst = [file for file in os.listdir(PATH_MODELS) if 'best'  in file]
 for i in tqdm.tqdm(range(len(model_lst))):
     myname = model_lst[i]
-    model_lst[i] = keras.models.load_model(PATH_MODELS+myname)
+    model_lst[i] = torch.load(PATH_MODELS+myname)
     model_lst[i].myname = myname
 
 print(len(model_lst))
@@ -84,9 +84,9 @@ print(len(filelist))
 def sample_data(x):
     """Randomly sample data to a manageable size."""
     total_samples = len(x)
-    sample_size = total_samples;
+    sample_size = total_samples
     if total_samples > 1000:
-        sample_size = 1000;
+        sample_size = 1000
 #    sample_size = min(sample_size, total_samples)
     indices = np.random.choice(total_samples, sample_size, replace=False)
     return x[indices], y[indices]
@@ -96,9 +96,10 @@ def compute_predictions(x, model_lst):
     all_predictions = []
 
     for model in model_lst:
-        model_predictions = model.predict(x).round()  # Round predictions to 0 or 1
+        model_predictions = model.forward(torch.tensor(x))  # Round predictions to 0 or 1
+        model_predictions = torch.round(model_predictions)
+        model_predictions = model_predictions.detach().numpy()
         all_predictions.append(model_predictions.flatten())
-
     return np.array(all_predictions).T  # Transpose so that each row represents a sample
 
 def count_correct_predictions(all_predictions, y):
@@ -246,12 +247,17 @@ def sample_data(X, y, sample_rate=0.01):
     indices = np.random.choice(total_samples, sample_size, replace=False)
     return X[indices], y[indices]
 
-def compute_predictions(X, model_lst):
+def compute_predictions(x, model_lst):
+    """Compute model predictions for a given dataset."""
     all_predictions = []
-    for model in tqdm.tqdm(model_lst):
-        model_predictions = model.predict(X).round()  # Round predictions to 0 or 1
+
+    for model in model_lst:
+        model_predictions = model.forward(torch.tensor(x))  # Round predictions to 0 or 1
+        model_predictions = torch.round(model_predictions)
+        model_predictions = model_predictions.detach().numpy()
         all_predictions.append(model_predictions.flatten())
     return np.array(all_predictions).T  # Transpose so that each row represents a sample
+
 
 def count_correct_predictions(all_predictions, y, X, model_lst):
     correct_counts = []
@@ -303,7 +309,7 @@ plt.savefig(PATH_TEST_PLOTS_52 + "/" + "average_accuracy_adjusted")
 
 
 
-
+'''
 INPUT_SIZE = 104
 PATH_MODELS =os.path.join(PATH_MODELS_PARENT,f"models_seq_{INPUT_SIZE}/")
 
@@ -475,3 +481,4 @@ plt.savefig(PATH_TEST_PLOTS_200 + "/" + "average_accuracy_adjusted")
 
 
 accuracies = [(count / 26) * 100 for count in correct_counts]
+'''
