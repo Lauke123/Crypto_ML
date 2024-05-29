@@ -10,6 +10,7 @@ import gc
 import torch
 from torch import nn
 import placeholder_model
+import model
 
 # Constants for defining the range of overlaps as a string
 NUMBER_OF_OVERLAPS = "1-12"
@@ -115,6 +116,9 @@ def load_partial_data(count, records_per_file):
 
     return x, y
 
+# if possible use gpu instead of cpu
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 # Define input size for the model and the path where models will be saved
 INPUT_SIZE = 200
 PATH_MODELS =os.path.join(PATH_MODELS_PARENT,f"models_seq_{INPUT_SIZE}")
@@ -137,28 +141,38 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
 
     # Iterate over each pin in the current wheel
     for pin in range(start_pin, end_pin):
-        model_pin = placeholder_model.Model(input_length=seq_len, num_filters=100, depth=5, num_outputs=1)
+        model_pin = model.Model(input_length=seq_len, num_filters=100, depth=5, num_outputs=1)
+        model_pin.to(device)
         while True:
 
-            x, y = load_partial_data(100,15000)
+            x, y = load_partial_data(20,100)
             targets = y[:, pin]
 
 
 
             epochs = 10
-            batch_size = 1000
+            batch_size = 10
             correct = 0
             criterion = nn.BCELoss()
             optimizer=torch.optim.Adam(model_pin.parameters(),lr=0.001)
             X_train, X_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)
 
+            # test shape of training data, adding an extra dimension so the channel has a dimension in the tensor. 
+            # The conv layer in the model expects a channel dimension with size = 1
+            X_train = torch.tensor(X_train, device=device).unsqueeze(1)
+            X_test = torch.tensor(X_test, device=device).unsqueeze(1)
+            y_train = torch.tensor(y_train, device=device)
+            y_test = torch.tensor(y_test, device=device)
+            print(X_train.size())
+            print(len(X_train))
+            print(X_test.size())
 
             test_loss_pin = 0
             # evaluation of the model
             with torch.no_grad():
-                eval_pred = model_pin.forward(torch.tensor(X_test))
+                eval_pred = model_pin.forward(X_test)
                 eval_pred = torch.flatten(eval_pred)
-                test_loss_pin = criterion(eval_pred, torch.Tensor(y_test))
+                test_loss_pin = criterion(eval_pred, y_test)
                 eval_pred = torch.round(eval_pred)
 
 
@@ -169,12 +183,13 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
             test_accuracy_pin = correct / len(y_test)
 
             # model training
-            for _ in range(epochs):
+            for ep in range(epochs):
+                print(f"Epoch:{ep}")
                 for batch in range(batch_size):
                     batch_starting_point = int((float(batch)/ float(batch_size)) * len(X_train))
                     batch_end_Point = int(((float(batch) + 1.0)/ float(batch_size)) * len(X_train))
-                    batch_X_train = torch.tensor(X_train[batch_starting_point:batch_end_Point])
-                    batch_y_train = torch.tensor(y_train[batch_starting_point:batch_end_Point])
+                    batch_X_train = X_train[batch_starting_point:batch_end_Point]
+                    batch_y_train = y_train[batch_starting_point:batch_end_Point]
                     y_pred = model_pin.forward(batch_X_train)
                     y_pred = torch.flatten(y_pred)
                     loss = criterion(y_pred, batch_y_train)

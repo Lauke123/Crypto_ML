@@ -39,12 +39,16 @@ PATH_MODELS_PARENT = os.path.join(PATH_DATA, "models")
 INPUT_SIZE = 200 # Fixed input size for the models
 PATH_MODELS =os.path.join(PATH_MODELS_PARENT,f"models_seq_{INPUT_SIZE}/")
 
+# if possible use gpu instead of cpu
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 # Load and prepare models for evaluation
 model_lst = [file for file in os.listdir(PATH_MODELS) if 'best'  in file]
 for i in tqdm.tqdm(range(len(model_lst))):
     myname = model_lst[i]
     model_lst[i] = torch.load(PATH_MODELS+myname)
     model_lst[i].myname = myname
+    model_lst[i].to(device)
 
 print(len(model_lst))
 
@@ -96,9 +100,9 @@ def compute_predictions(x, model_lst):
     all_predictions = []
 
     for model in model_lst:
-        model_predictions = model.forward(torch.tensor(x))  # Round predictions to 0 or 1
+        model_predictions = model.forward(torch.tensor(x, device=device).unsqueeze(1))  # Round predictions to 0 or 1
         model_predictions = torch.round(model_predictions)
-        model_predictions = model_predictions.detach().numpy()
+        model_predictions = model_predictions.detach().cpu().numpy()
         all_predictions.append(model_predictions.flatten())
     return np.array(all_predictions).T  # Transpose so that each row represents a sample
 
@@ -252,9 +256,9 @@ def compute_predictions(x, model_lst):
     all_predictions = []
 
     for model in model_lst:
-        model_predictions = model.forward(torch.tensor(x))  # Round predictions to 0 or 1
+        model_predictions = model.forward(torch.tensor(x, device=device).unsqueeze(1))  # Round predictions to 0 or 1
         model_predictions = torch.round(model_predictions)
-        model_predictions = model_predictions.detach().numpy()
+        model_predictions = model_predictions.detach().cpu().numpy()
         all_predictions.append(model_predictions.flatten())
     return np.array(all_predictions).T  # Transpose so that each row represents a sample
 
