@@ -64,12 +64,11 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
     # Iterate over each pin in the current wheel
 
     for pin in range(start_pin, end_pin):
-        model_pin = model.Model(input_length=seq_len, num_filters=100, depth=5, num_outputs=1)
-        learner = Learner(model_pin)
-        model_pin.to(device)
         progress_data = []
         while True:
-
+            model_pin = model.Model(input_length=seq_len, num_filters=100, depth=5, num_outputs=1)
+            learner = Learner(model_pin)
+            model_pin.to(device)
 
             x, y = load_partial_data(10,10000, filelist, PATH_TRAINING_DATA, INPUT_SIZE)
             targets = y[:, pin]
@@ -96,13 +95,6 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
             #test_loss_pin /= batch_size
             print(f"Seq Length {seq_len}, Wheel {wheel}, Pin {pin}: Test Loss: {test_loss_pin}, Test Accuracy: {test_accuracy_pin}")
 
-            # Check if the current pin is the first pin
-            if pin == start_pin:
-                # If the accuracy is higher than 0.6, set the flag to train all pins
-                if train_all_pins:
-                    train_all_pins = True
-                else:
-                    break  # Skip training the remaining pins for this wheel
             #retraining for pins vs low accuracy        
             if test_accuracy_pin > 0.88:
 
