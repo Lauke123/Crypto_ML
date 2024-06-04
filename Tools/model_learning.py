@@ -51,21 +51,25 @@ class Learner:
                     loss.backward()
                     optimizer.step()
 
-    def evaluate(self, inputs:torch.Tensor, lables:torch.Tensor):
+    def evaluate(self, inputs:torch.Tensor, labels:torch.Tensor, batchsize=1000):
         correct_predictions = 0
         with torch.no_grad():
-            # compute the predictions from the testset
-            eval_pred = self.model.forward(inputs)
-            eval_pred = torch.flatten(eval_pred)
-            loss = self.criterion(eval_pred, lables)
-            eval_pred = torch.round(eval_pred)
+            # creating set of data batches with dataloader
+            dataset = LearnerDataset(inputs=inputs, lables=labels)
+            dataloader = DataLoader(batch_size=batchsize, dataset=dataset, shuffle=False)
+            for _, (inputs, labels) in enumerate(dataloader):
+                # compute the predictions from the testset
+                eval_pred = self.model.forward(inputs)
+                eval_pred = torch.flatten(eval_pred)
+                loss = self.criterion(eval_pred, labels)
+                eval_pred = torch.round(eval_pred)
 
-            # count the number of correct predictions
-            for i in range(len(lables)):
-                if lables[i] == eval_pred[i]:
-                    correct_predictions +=1
+                # count the number of correct predictions
+                for i in range(len(labels)):
+                    if labels[i] == eval_pred[i]:
+                        correct_predictions +=1
 
-        accuracy = correct_predictions / len(lables)
+        accuracy = correct_predictions / len(labels)
 
         return loss, accuracy
 

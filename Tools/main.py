@@ -70,7 +70,7 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
             learner = Learner(model_pin)
             model_pin.to(device)
 
-            x, y = load_partial_data(10,10000, filelist, PATH_TRAINING_DATA, INPUT_SIZE)
+            x, y = load_partial_data(10,15000, filelist, PATH_TRAINING_DATA, INPUT_SIZE)
             targets = y[:, pin]
             print("Data is loaded")
 
@@ -94,7 +94,6 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
 
             #test_loss_pin /= batch_size
             print(f"Seq Length {seq_len}, Wheel {wheel}, Pin {pin}: Test Loss: {test_loss_pin}, Test Accuracy: {test_accuracy_pin}")
-
             #retraining for pins vs low accuracy        
             if test_accuracy_pin > 0.88:
 
