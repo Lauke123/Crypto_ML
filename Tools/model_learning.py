@@ -35,7 +35,7 @@ class Learner:
     
 
     def fit(self, batchsize: int, labels: torch.Tensor,  
-            inputs:torch.Tensor, epochs:int, shuffle:bool):
+            inputs:torch.Tensor, epochs:int, shuffle:bool, device:torch.device):
         # creating set of data batches with dataloader
         dataset = LearnerDataset(inputs=inputs, lables=labels)
         dataloader = DataLoader(batch_size=batchsize, dataset=dataset, shuffle=shuffle)
@@ -43,7 +43,7 @@ class Learner:
             optimizer = torch.optim.Adam(self.model.parameters(), lr=(self.learningrate * (0.95 ** float(epoch))))
             for _, (inputs, labels) in enumerate(dataloader):
                     # compute predictions and loss from the trainset
-                    prediction = self.model.forward(inputs)
+                    prediction = self.model.forward(inputs.to(device))
                     prediction = torch.flatten(prediction)
                     loss = self.criterion(prediction, labels)
                     # optimze the model with backpropagation
