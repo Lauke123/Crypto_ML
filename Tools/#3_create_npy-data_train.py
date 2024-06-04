@@ -2,7 +2,7 @@ import os
 import multiprocessing
 import random
 import time
-
+from tqdm import tqdm
 import numpy as np
 import json
 
@@ -29,7 +29,7 @@ def load_data(file):
     y_temp = []
     
     # Process each sequence in the data
-    for i in range(len(data)):
+    for i in tqdm(range(len(data))):
         s=data[i][3][:length]
         x_temp.append([ord(n) for n in s])
         new_wheel_data = []
@@ -68,7 +68,7 @@ os.makedirs(PATH_TRAINING_DATA, exist_ok=True)
 if __name__ == "__main__":
 
     #NUMBER_CORS = multiprocessing.cpu_count()
-    NUMBER_CORS = 50
+    NUMBER_CORS = 10
 
     print(PATH_DATA)
     print(WORKING_DIR)
@@ -81,10 +81,14 @@ if __name__ == "__main__":
 
     print (PATH_CIPHERTEXTS )
 
-    # Use multiprocessing to process files in parallel for efficiency 
-    with multiprocessing.Pool(NUMBER_CORS) as pool:
-        for _ in pool.imap(load_data, filelist):
-            pass
+    # Use multiprocessing to process files in parallel for efficiency
+    #with multiprocessing.Pool(NUMBER_CORS) as pool:
+     #   for _ in pool.imap(load_data, filelist):
+      #      pass
+    for i, file in enumerate(filelist):
+        print(f"Filenumber: {i}")
+        load_data(file)
+    print("Loading finished")
     # Change working directory to the training data directory
     os.chdir(PATH_TRAINING_DATA)
     x_files = [file for file in os.listdir(PATH_TRAINING_DATA) if 'x' in file]

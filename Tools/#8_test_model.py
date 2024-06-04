@@ -54,7 +54,6 @@ print(len(model_lst))
 
 
 
-
 # Prepare the testing data file list
 filelist = os.listdir(PATH_TESTING_DATA)
 
@@ -256,10 +255,13 @@ def compute_predictions(x, model_lst):
     all_predictions = []
 
     for model in model_lst:
-        model_predictions = model.forward(torch.tensor(x, device=device).unsqueeze(1))  # Round predictions to 0 or 1
-        model_predictions = torch.round(model_predictions)
-        model_predictions = model_predictions.detach().cpu().numpy()
-        all_predictions.append(model_predictions.flatten())
+        model_predictions = []
+        for i in range(1000):
+            model_predictions_batch = model.forward(torch.tensor(x[int(len(x)*float(i)/1000):int(len(x)*float(i+1)/1000)], device=device).unsqueeze(1))  
+            model_predictions_batch = torch.round(model_predictions_batch)
+            model_predictions_batch = model_predictions_batch.detach().cpu().numpy()
+            model_predictions.extend(model_predictions_batch.flatten())
+        all_predictions.append(model_predictions)
     return np.array(all_predictions).T  # Transpose so that each row represents a sample
 
 
