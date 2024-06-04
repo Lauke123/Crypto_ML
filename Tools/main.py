@@ -70,7 +70,7 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
             learner = Learner(model_pin)
             model_pin.to(device)
 
-            x, y = load_partial_data(10,15000, filelist, PATH_TRAINING_DATA, INPUT_SIZE)
+            x, y = load_partial_data(100,15000, filelist, PATH_TRAINING_DATA, INPUT_SIZE)
             targets = y[:, pin]
             print("Data is loaded")
 

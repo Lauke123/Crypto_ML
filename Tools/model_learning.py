@@ -53,6 +53,7 @@ class Learner:
 
     def evaluate(self, inputs:torch.Tensor, labels:torch.Tensor, batchsize=1000):
         correct_predictions = 0
+        size_dataset = len(labels)
         with torch.no_grad():
             # creating set of data batches with dataloader
             dataset = LearnerDataset(inputs=inputs, lables=labels)
@@ -69,7 +70,7 @@ class Learner:
                     if labels[i] == eval_pred[i]:
                         correct_predictions +=1
 
-        accuracy = correct_predictions / len(labels)
+        accuracy = correct_predictions / size_dataset
 
         return loss, accuracy
 
