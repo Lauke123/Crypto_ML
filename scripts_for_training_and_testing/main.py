@@ -9,7 +9,7 @@ from torch import nn
 import model
 from dataloading import load_partial_data
 from model_learning import Learner
-from progress_plot import ProgressPlot
+
 
 # Constants for defining the range of overlaps as a string
 NUMBER_OF_OVERLAPS = "1-12"
@@ -52,7 +52,6 @@ pinwheel_sizes = [26]
 # Cumulative sizes used for iterating over segments
 cumulative_sizes = np.cumsum([0] + pinwheel_sizes)
 
-progressplot = ProgressPlot()
 
 model_accuracies = []
 
@@ -70,7 +69,7 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
             learner = Learner(model_pin)
             model_pin.to(device)
 
-            x, y = load_partial_data(100,15000, filelist, PATH_TRAINING_DATA, INPUT_SIZE)
+            x, y = load_partial_data(40,15000, filelist, PATH_TRAINING_DATA, INPUT_SIZE)
             targets = y[:, pin]
             print("Data is loaded")
 
@@ -106,8 +105,6 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
                     'Accuracy': test_accuracy_pin
                 })
 
-                progressplot.append_data(progress_data)
-
                 # Save the final model
                 torch.save(model_pin, PATH_MODELS + f'/best_model_wheel_{wheel}_pin_{pin}.pth')
 
@@ -116,7 +113,6 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
                 gc.collect()
                 break
 
-progressplot.generate_plot()
             
 # Convert the list of accuracies to a DataFrame
 accuracy_df = pd.DataFrame(model_accuracies)
