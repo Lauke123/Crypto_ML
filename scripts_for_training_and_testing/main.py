@@ -2,13 +2,10 @@
 import os
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 import gc
 import torch
-from torch import nn
-import model
-from dataloading import load_partial_data
-from model_learning import Learner
+import model as model
+from model_learning import Learner, LearnerDataset
 
 
 # Constants for defining the range of overlaps as a string
@@ -58,42 +55,32 @@ model_accuracies = []
 # Loop over each sequence length
 seq_len = INPUT_SIZE  # Define sequence length
 # Iterate over each wheel
-for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_sizes[1:])):
+for wheel,(start_pin,end_pin) in enumerate(zip(cumulative_sizes, cumulative_sizes[1:])):
 
     # Iterate over each pin in the current wheel
 
     for pin in range(start_pin, end_pin):
         progress_data = []
         while True:
-            model_pin = model.Model(input_length=seq_len, num_filters=100, depth=5, num_outputs=1)
-            learner = Learner(model_pin)
+            model_pin = model.Model(input_length=seq_len, num_filters=100,
+                                    depth=5, num_outputs=1)
             model_pin.to(device)
 
-            x, y = load_partial_data(40,15000, filelist, PATH_TRAINING_DATA, INPUT_SIZE)
-            targets = y[:, pin]
-            print("Data is loaded")
-
-            X_train, X_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)
-
-            # test shape of training data, adding an extra dimension so the channel has a dimension in the tensor. 
-            # The conv layer in the model expects a channel dimension with size = 1
-            X_train = torch.tensor(X_train, device=device).unsqueeze(1)
-            X_test = torch.tensor(X_test, device=device).unsqueeze(1)
-            y_train = torch.tensor(y_train, device=device)
-            y_test = torch.tensor(y_test, device=device)
-
+            dataset = LearnerDataset(INPUT_SIZE, PATH_TRAINING_DATA, pin,
+                                     filelist, device)
+            learner = Learner(model_pin, dataset)
 
 
             # model training
-            learner.fit(batch_size, y_train, X_train, epochs, True, device=device)
+            learner.fit(batch_size, epochs, True, device=device)
 
             # model evaluation
-            test_loss_pin, test_accuracy_pin = learner.evaluate(X_test, y_test)
+            test_loss_pin, test_accuracy_pin = learner.evaluate()
             progress_data.append(test_accuracy_pin)
 
-            #test_loss_pin /= batch_size
             print(f"Seq Length {seq_len}, Wheel {wheel}, Pin {pin}: Test Loss: {test_loss_pin}, Test Accuracy: {test_accuracy_pin}")
-            #retraining for pins vs low accuracy        
+
+            #retraining for pins vs low accuracy
             if test_accuracy_pin > 0.88:
 
                 # Record the model's accuracy if it's the first pin or if all pins are being trained
@@ -113,7 +100,6 @@ for wheel, (start_pin, end_pin) in enumerate(zip(cumulative_sizes, cumulative_si
                 gc.collect()
                 break
 
-            
 # Convert the list of accuracies to a DataFrame
 accuracy_df = pd.DataFrame(model_accuracies)
 
