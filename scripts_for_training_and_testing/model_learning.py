@@ -17,7 +17,7 @@ class LearnerDataset(Dataset):
                  filelist,
                  device):
 
-        x, y = load_partial_data(100,15000, filelist, data_path, inputsize)
+        x, y = load_partial_data(10,1500, filelist, data_path, inputsize)
         targets = y[:, pin]
 
         X_train, X_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)

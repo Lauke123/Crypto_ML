@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import gc
 import torch
-import model as model
+import placeholder_model as model
 from model_learning import Learner, LearnerDataset
 
 
@@ -80,11 +80,10 @@ for wheel,(start_pin,end_pin) in enumerate(zip(cumulative_sizes, cumulative_size
 
             print(f"Seq Length {seq_len}, Wheel {wheel}, Pin {pin}: Test Loss: {test_loss_pin}, Test Accuracy: {test_accuracy_pin}")
 
-            #retraining for pins vs low accuracy
-            if test_accuracy_pin > 0.88:
+            # retraining for pins vs low accuracy
+            if test_accuracy_pin > 0.60:
 
-                # Record the model's accuracy if it's the first pin or if all pins are being trained
-                #if train_all_pins or pin == start_pin:
+                # Record the model's accuracy
                 model_accuracies.append({
                     'Sequence Length': seq_len,
                     'Wheel Number': wheel,
@@ -95,7 +94,7 @@ for wheel,(start_pin,end_pin) in enumerate(zip(cumulative_sizes, cumulative_size
                 # Save the final model
                 torch.save(model_pin, PATH_MODELS + f'/best_model_wheel_{wheel}_pin_{pin}.pth')
 
-                # Clear the TensorFlow session and collect garbage to free memory
+                # Clear the pytorch session and collect garbage to free memory
                 torch.cuda.empty_cache()
                 gc.collect()
                 break

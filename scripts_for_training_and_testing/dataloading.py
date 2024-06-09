@@ -3,7 +3,7 @@ import random
 import tqdm
 
 
-def load_partial_data(count, records_per_file, filelist, path_training_data, inputsize):
+def load_partial_data(count,filelist, path_data, inputsize, records_per_file=None):
     """
     Load a specific number of records from a set number of files.
 
@@ -23,8 +23,12 @@ def load_partial_data(count, records_per_file, filelist, path_training_data, inp
 
     for file in tqdm.tqdm(files):
         # Load only the specified number of records from each file
-        x_tmp = np.load(path_training_data + "/" + file[0])[:records_per_file]
-        y_tmp = np.load(path_training_data  + "/" + file[1])[:records_per_file]
+        if records_per_file == None:
+            x_tmp = np.load(path_data + '/' + file[0])
+            y_tmp = np.load(path_data + '/' + file[1])
+        else:
+            x_tmp = np.load(path_data + "/" + file[0])[:records_per_file]
+            y_tmp = np.load(path_data  + "/" + file[1])[:records_per_file]
 
         # Ensure the input size matches expected dimensions, adjust if necessary
         if inputsize > x_tmp.shape[1]:
