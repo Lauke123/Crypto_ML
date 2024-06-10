@@ -180,7 +180,7 @@ for file in filelist:
     plt.title("Distribution of Prediction Accuracies")
     plt.xlabel("Accuracy (%)")
     plt.ylabel("Frequency")
-    plt.savefig(PATH_TEST_PLOTS_52 + "/" + f"Non_shared_lugs_{non_shared_value}_Overlaps_{overlaps_value}")
+    plt.savefig(PATH_TEST_PLOTS_200 + "/" + f"Non_shared_lugs_{non_shared_value}_Overlaps_{overlaps_value}")
     
     # Second Histogram
     plt.clf()  # Clear the previous figure again before the next plot
@@ -298,7 +298,7 @@ plt.clf()  # Clear the previous figure
 # Show average accuracy on the graph
 plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
 plt.text(average_accuracy, max(counts)/2, f'Average: {average_accuracy:.2f}%', rotation=90)
-plt.savefig(PATH_TEST_PLOTS_52 + "/" + "average_accuracy")
+plt.savefig(PATH_TEST_PLOTS_200 + "/" + "average_accuracy")
 
 
 
@@ -306,12 +306,12 @@ plt.clf()  # Clear the previous figure
 # Adjust the number of bins manually based on your data's characteristics
 adjusted_bins = 22  # Example: set to 20, adjust based on your data's distribution
 plt.hist(accuracies, bins=adjusted_bins, color='lightgray', alpha=0.7, edgecolor='black')
-plt.title("Accuracy distribution for n=52")
+plt.title("Accuracy distribution for n=200")
 plt.xlabel("Accuracy (%)")
 plt.ylabel("Frequency")
 plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
 plt.text(average_accuracy, plt.ylim()[1]/2, f'Average: {average_accuracy:.2f}%', rotation=90)
-plt.savefig(PATH_TEST_PLOTS_52 + "/" + "average_accuracy_adjusted")
+plt.savefig(PATH_TEST_PLOTS_200 + "/" + "average_accuracy_adjusted")
 
 
 
