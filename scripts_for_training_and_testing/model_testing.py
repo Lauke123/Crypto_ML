@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import math
 from torch.nn import Module
 
 
@@ -13,14 +14,18 @@ class ModelTester:
         indices = np.random.choice(total_samples, sample_size, replace=False)
         return X[indices], y[indices]
 
-    def compute_predictions(self,x):
+    def compute_predictions(self,x, batchsize:int):
         """Compute model predictions for a given dataset."""
         all_predictions = []
-
+        num_batches = math.ceil(len(x) / batchsize)
         for model in self.model_list:
             model_predictions = []
-            for i in range(100):
-                model_predictions_batch = model.forward(torch.tensor(x[int(len(x)*float(i)/100):int(len(x)*float(i+1)/100)], device=self.device).unsqueeze(1))  
+            for i in range(num_batches):
+                start = i * batchsize
+                end = min((i + 1) * batchsize,len(x))
+                model_predictions_batch = model.forward(torch.tensor(x[start:end],
+                                                                    device=self.device)
+                                                                    .unsqueeze(1))
                 model_predictions_batch = torch.round(model_predictions_batch)
                 model_predictions_batch = model_predictions_batch.detach().cpu().numpy()
                 model_predictions.extend(model_predictions_batch.flatten())

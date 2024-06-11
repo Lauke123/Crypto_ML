@@ -100,7 +100,7 @@ for file in filelist:
     y = np.array(y, dtype='float32')
 
 
-    all_predictions = modeltester.compute_predictions(x)
+    all_predictions = modeltester.compute_predictions(x, len(x))
     correct_counts =  modeltester.count_correct_predictions(all_predictions, y, x)
 
     accuracies = [(count / 26) * 100 for count in correct_counts]
@@ -144,7 +144,7 @@ for result in accuracy_results:
 #X, y = sample_data(X, y)
 X, y = load_partial_data(103, filelist=filelist,
                          path_data=PATH_TESTING_DATA, inputsize=INPUT_SIZE)
-all_predictions = modeltester.compute_predictions(X)
+all_predictions = modeltester.compute_predictions(X, 1000)
 correct_counts = modeltester.count_correct_predictions(all_predictions, y, X)
 
 # Compute accuracies
