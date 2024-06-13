@@ -60,7 +60,9 @@ class Learner:
     '''
     def __init__(self, model:torch.nn.Module,
                  dataset:LearnerDataset,
-                 learningrate=0.001):
+                 learningrate=0.001,
+                 l2_kernel_regularizer=False):
+        self.l2_kernel_regularizer = l2_kernel_regularizer
         self.model = model
         self.criterion = nn.BCELoss()
         self.learningrate = learningrate
@@ -79,6 +81,11 @@ class Learner:
                     prediction = self.model.forward(inputs.to(device))
                     prediction = torch.flatten(prediction)
                     loss = self.criterion(prediction, labels)
+                    # used to calculate and add the l2 regularizer for all the conv layer weights, like in the original tensorflow implementation
+                    if self.l2_kernel_regularizer:
+                        conv_weight = [p for name, p in self.model.named_parameters() if "conv" in name and "weight" in name]
+                        for weight in conv_weight:
+                            loss += torch.norm(weight, p=2)
                     # optimze the model with backpropagation
                     optimizer.zero_grad()
                     loss.backward()
@@ -97,6 +104,11 @@ class Learner:
                 eval_pred = self.model.forward(inputs)
                 eval_pred = torch.flatten(eval_pred)
                 loss = self.criterion(eval_pred, labels)
+                # used to calculate and add the l2 regularizer for all the conv layer weights, like in the original tensorflow implementation
+                if self.l2_kernel_regularizer:
+                    conv_weight = [p for name, p in self.model.named_parameters() if "conv" in name and "weight" in name]
+                    for weight in conv_weight:
+                        loss += torch.norm(weight, p=2)
                 eval_pred = torch.round(eval_pred)
 
                 # count the number of correct predictions
