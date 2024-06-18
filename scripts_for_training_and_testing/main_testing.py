@@ -41,7 +41,7 @@ for i in tqdm.tqdm(range(len(model_lst))):
 print(len(model_lst))
 
 plotgenerator = PlotGenerator(PATH_TEST_PLOTS)
-modeltester = ModelTester(model_lst, device)
+modeltester = ModelTester(model_lst, device, INPUT_SIZE)
 
 # Prepare the testing data file list
 filelist = os.listdir(PATH_TESTING_DATA)
@@ -84,21 +84,9 @@ for file in filelist:
     if len(x) < num_samples_to_select:
              num_samples_to_select = (len(x))
 
-    random_indices = random.sample(range(len(x)), num_samples_to_select)
+    x, y = modeltester.sample_data(x, y, num_samples_to_select)
 
-    x = x[random_indices]
-    y = y[random_indices]
-
-    if INPUT_SIZE > x.shape[1]:
-        raise UserWarning("Length too short")
-
-    x = x[:,:INPUT_SIZE]
-
-    x = np.subtract(x ,65)
-    x = np.array(x, dtype='float32')
-    x = np.divide(x , 25)
-    y = np.array(y, dtype='float32')
-
+    x, y = modeltester.normalize_data(x, y)
 
     all_predictions = modeltester.compute_predictions(x, len(x))
     correct_counts =  modeltester.count_correct_predictions(all_predictions, y, x)
@@ -117,19 +105,12 @@ for file in filelist:
     print(f"Mean Accuracy: {mean_accuracy:.2f}%")
     print(f"Median Accuracy: {median_accuracy:.2f}%")
 
+
     plotgenerator.generate_plot(accuracies,
                                 f"Non_shared_lugs_{non_shared_value}_Overlaps_{overlaps_value}",
                                 f"Non_shared_lugs_{non_shared_value}_Overlaps_{overlaps_value}",
                                 )
 
-    '''
-    counts, bin_edges, _ = plt.hist(accuracies, bins=range(0, 110, 10), color='blue', alpha=0.7, edgecolor='black')
-    total_samples = sum(counts)
-    print (f"Number of tested sequences of this type: {total_samples}")  
-    # Outputting histogram values as percentages of the total
-    for i in range(len(counts)):
-        percentage = (counts[i] / total_samples) * 100
-        print(f"Accuracy range: {bin_edges[i]}% - {bin_edges[i+1]}%, Frequency: {percentage:.2f}%")  '''
 
 
 
@@ -140,10 +121,10 @@ for result in accuracy_results:
     print(f"{result[0]} | {result[1]} | {result[2]:.2f}% | {result[3]:.2f}%")
 
 
-# Assume X, y, and model_lst are properly initialized
-#X, y = sample_data(X, y)
+
 X, y = load_partial_data(103, filelist=filelist,
                          path_data=PATH_TESTING_DATA, inputsize=INPUT_SIZE)
+
 all_predictions = modeltester.compute_predictions(X, 1000)
 correct_counts = modeltester.count_correct_predictions(all_predictions, y, X)
 
