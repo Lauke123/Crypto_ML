@@ -1,71 +1,85 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# Import necessary libraries
 import multiprocessing
 import os
-import tqdm
+import tqdm    
+from collections import defaultdict, Counter
+from pathlib import Path
+import json
+import re
 
-from _1_keygen_json import KeyGen #  module for key generation
+from _1_keygen_json import KeyGen
 
-if __name__ == "__main__":
+def create_keys_test(cpu_cores: int, output_path: str, lugs_keys_per_file: int = 1000, lugs_num_key_files: int = 20, 
+                     pin_num_key_files: int = 103, pin_keys_per_file: int = 1000,
+                     lugs_mixed_keys_per_file: int = 40000, lugs_mixed_num_key_files: int = 200) -> None:
+    """Create the keys(different settings of the m209 encryption machine) used in the testing process.
 
-    # Configuration parameters
+    Parameters
+    ----------
+    cpu_cores : int
+        amount of cpu cores that should be used during multiprocessing
+    output_path : str
+        absolute path to the directory the data folder should be created in.
+    lugs_keys_per_file : int
+        the amount of keys that are stored in one file of lug settings that are used to calculate files for a specific amount of overlaps
+    lugs_num_key_files : int
+        the amount of files that hold keys for specific overlaps
+    pin_keys_per_file : int
+        the amount of keys for pin setting that are stored in one file
+    pin_num_key_files : int
+        the amount of files that hold keys for pin settings
+    lugs_mixed_keys_per_file : int
+        amount of different lugs setting storend in one file, from 1 to max overlap all lug settigs are mixed together
+    lugs_mixed_num_key_files : int
+        the amount of key files of mixed lugs settings
 
-    keys_per_file = 1000
-    num_key_files = 20
+    Returns
+    -------
+    None
 
-    NUMBER_CORS = os.cpu_count() # Number of CPU cores to use for multiprocessing
-
+    """
     # Define directory paths for storing generated data
-    current_directory = os.getcwd()
-    WORKING_DIR = os.path.join(current_directory, "..")
-    PATH_DATA = os.path.join(WORKING_DIR, "Data") 
-    PATH_KEYS = os.path.join(PATH_DATA, "1_keys_test")
-    PATH_LUGS= os.path.join(PATH_KEYS, "lugs")
-    PATH_SORTED_LUGS= os.path.join(PATH_KEYS, "lugs_sorted")
+    output_directory = output_path
+    data_directory = os.path.join(output_directory, "Data") 
+    keys_directory = os.path.join(data_directory, "1_keys_test")
+    lugs_directory= os.path.join(keys_directory, "lugs")
+    sorted_lugs_directory= os.path.join(keys_directory, "lugs_sorted")
 
     # Ensure the existence of the directories
-    os.makedirs(PATH_KEYS, exist_ok=True)
-    os.makedirs(PATH_LUGS, exist_ok=True)
-    os.makedirs(PATH_SORTED_LUGS, exist_ok=True)
-
-
+    os.makedirs(keys_directory, exist_ok=True)
+    os.makedirs(lugs_directory, exist_ok=True)
+    os.makedirs(sorted_lugs_directory, exist_ok=True)
 
     # Begin generation of random keys
     print("\n\nGenerating random keys")
-    key_generator = KeyGen(count=int(keys_per_file))
-
+    key_generator = KeyGen(count=int(lugs_keys_per_file))
 
     # Change the working directory to where lugs will be stored
-    os.chdir(PATH_LUGS)
+    os.chdir(lugs_directory)
     # Generate lug settings with varying overlaps
     for i in range(1, 13):
         print(f"Generating lug settings with {i} overlap")
         if (i == 5): # Increase the number of key files significantly for keys with more overlaps
-            num_key_files=num_key_files*20
-            
-        key_generator.path = f"overlaps_{str(i)}/" 
+            lugs_num_key_files=lugs_num_key_files*20
+
+        key_generator.path = f"overlaps_{str(i)}/"
         try:
             os.mkdir(key_generator.path)
         except FileExistsError as err:
             pass # Ignore if the directory already exists
         key_generator.min_overlaps = i
         key_generator.max_overlaps = i
-        filenames = list(str(j).zfill(len(str(num_key_files - 1))) + f'_lugs_{str(i)}.json'
-                        for j in range(num_key_files))
-
+        filenames = list(str(j).zfill(len(str(lugs_num_key_files - 1))) + f'_lugs_{str(i)}.json'
+                        for j in range(lugs_num_key_files))
 
     # Use multiprocessing to generate keys for the specified filenames
-        with multiprocessing.Pool(NUMBER_CORS) as pool:
-            for _ in tqdm.tqdm(pool.imap(key_generator.keygen_json_lugs, filenames),total=num_key_files):
+        with multiprocessing.Pool(cpu_cores) as pool:
+            for _ in tqdm.tqdm(pool.imap(key_generator.keygen_json_lugs, filenames),total=lugs_num_key_files):
                 pass
 
-
     # Generate lug settings with 1 to max overlap
-    os.chdir(PATH_LUGS)
-    num_key_files=200
-    key_generator = KeyGen(count=int(40000))
+    os.chdir(lugs_directory)
+
+    key_generator = KeyGen(count=int(lugs_mixed_keys_per_file))
     for i in range(12, 13):
         print(f"Generating lug settings with 1 to {i} overlap")
         key_generator.path = f"overlaps_1-{str(i)}/"
@@ -75,23 +89,12 @@ if __name__ == "__main__":
             pass
         key_generator.min_overlaps = 1
         key_generator.max_overlaps = i
-        filenames = list(str(j).zfill(len(str(num_key_files - 1))) + f'_lugs_1-{str(i)}.json'
-                        for j in range(num_key_files))
+        filenames = list(str(j).zfill(len(str(lugs_mixed_num_key_files - 1))) + f'_lugs_1-{str(i)}.json'
+                        for j in range(lugs_mixed_num_key_files))
 
-        with multiprocessing.Pool(NUMBER_CORS) as pool:
-            for _ in tqdm.tqdm(pool.imap(key_generator.keygen_json_lugs, filenames), total=num_key_files):
+        with multiprocessing.Pool(cpu_cores) as pool:
+            for _ in tqdm.tqdm(pool.imap(key_generator.keygen_json_lugs, filenames), total=lugs_mixed_num_key_files):
                 pass
-            
-    # Reset configuration parameters for pins generation        
-    keys_per_file = 1000
-    num_key_files = 20
-
-
-    from collections import defaultdict, Counter
-    from concurrent.futures import ProcessPoolExecutor, as_completed
-    from pathlib import Path
-    import json
-    import re
 
     # Define functions for extracting and processing lug sequences from generated JSON files
     def extract_values(sequence):
@@ -151,28 +154,26 @@ if __name__ == "__main__":
         save_sequences(sequences_by_type, working_folder)
 
     # Adjust 'start_path' and 'working_folder' as needed
-    start_path = PATH_LUGS
-    working_folder = PATH_SORTED_LUGS
+    start_path = lugs_directory
+    working_folder = sorted_lugs_directory
     main(start_path, working_folder)
 
 
 
     # Preparing for pin generation
-    os.chdir(PATH_KEYS)
-    key_generator = KeyGen(count=int(keys_per_file), path="")
-    num_key_files=103
+    os.chdir(keys_directory)
+    key_generator = KeyGen(count=int(pin_keys_per_file), path="")
     filenames = []
     # Create directory for pins if it doesn't exist
     try:
-        os.mkdir(PATH_KEYS + f"/pins/")
+        os.mkdir(keys_directory + f"/pins/")
     except FileExistsError as err:
         pass
 
     # Generate filenames for the pin files
-    filenames += list(PATH_KEYS + f"/pins/" + str(j).zfill(len(str(num_key_files - 1))) + '_pins.json' for j in range(num_key_files))
-    print (filenames)
+    filenames += list(keys_directory + f"/pins/" + str(j).zfill(len(str(pin_num_key_files - 1))) + '_pins.json' for j in range(pin_num_key_files))
 
     # Generate pin files using multiprocessing for improved performance
-    with multiprocessing.Pool(NUMBER_CORS) as pool:
-        for _ in tqdm.tqdm(pool.imap(key_generator.keygen_json_pins, filenames), total=num_key_files):
+    with multiprocessing.Pool(cpu_cores) as pool:
+        for _ in tqdm.tqdm(pool.imap(key_generator.keygen_json_pins, filenames), total=pin_num_key_files):
             pass

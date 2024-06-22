@@ -1,9 +1,10 @@
-import os, shutil
-import random
 import multiprocessing
-import sys
-from _3_encrypt import Encrypt
+import os
+import random
 import re
+import shutil
+
+from _3_encrypt import Encrypt
 
 SEQUENCE_SIZE = 500
 
@@ -47,79 +48,62 @@ def generate_data(x):
     
 
 # guard so child processes do not execute this part (important if executed on windows machines)
-if __name__ == "__main__":
+def create_ciphertext_test(cpu_cores: int, output_path: str) -> None:
+    """Create the ciphertext for testing according to keys stored in the previous step.
 
+    Parameters
+    ----------
+    cpu_cores : int
+        amount of cpu cores that should be used during multiprocessing
+    output_path : str
+        absolute path to the directory the data folder from the previous step is inside
+
+    Returns
+    -------
+    None
+
+    """
     # Define the working directory paths for storing keys, lugs, pins, and ciphertexts
 
-    current_directory = os.getcwd()
-    WORKING_DIR = os.path.join(current_directory, "..")
-    PATH_DATA = os.path.join(WORKING_DIR, "Data") 
-    PATH_KEYS = os.path.join(PATH_DATA, "1_keys_test")
-    PATH_LUGS= os.path.join(PATH_KEYS, "lugs_sorted")
-    PATH_PINS = os.path.join(PATH_KEYS, "pins")
+    output_directory = output_path
+    data_directory = os.path.join(output_directory, "Data") 
+    keys_directory = os.path.join(data_directory, "1_keys_test")
+    lugs_directory= os.path.join(keys_directory, "lugs_sorted")
+    pins_directory = os.path.join(keys_directory, "pins")
 
-    PATH_CIPHERTEXTS = os.path.join(PATH_DATA, "2_ciphertexts_test")
-    os.makedirs(PATH_CIPHERTEXTS, exist_ok=True)
-
-    # Configuration for multiprocessing and sequence size
-    #NUMBER_CORS = multiprocessing.cpu_count()
-    NUMBER_CORS = os.cpu_count()
-
-
+    ciphertext_directory = os.path.join(data_directory, "2_ciphertexts_test")
+    os.makedirs(ciphertext_directory, exist_ok=True)
 
     # List lug and pin files, filtering by file type
-    lug_files = [f for f in os.listdir(PATH_LUGS) if "Overlaps" in f]
+    lug_files = [f for f in os.listdir(lugs_directory) if "Overlaps" in f]
     lug_files = [f for f in lug_files if ".json" in f]
-    pin_files = [f for f in os.listdir(PATH_PINS) if "pins" in f]
+    pin_files = [f for f in os.listdir(pins_directory) if "pins" in f]
     pin_files = [f for f in pin_files if ".json" in f]
-    #print (lug_files)
-    #print (pin_files)
-
-
-
 
     # Copy lug and pin files to the ciphertexts directory for processing
-    os.chdir(PATH_CIPHERTEXTS)
+    os.chdir(ciphertext_directory)
     for file in lug_files:
-    #  print (file)
-        # os.system(f"cp {PATH_LUGS+'/'+ file} {PATH_CIPHERTEXTS+'/'}")
-        shutil.copy(PATH_LUGS + '/' + file, PATH_CIPHERTEXTS)
+        shutil.copy(lugs_directory + '/' + file, ciphertext_directory)
 
     for file in pin_files:
-    #  print (file)
-        # os.system(f"cp {PATH_PINS+'/'+file} {PATH_CIPHERTEXTS+'/'}")
-        shutil.copy(PATH_PINS + '/' + file, PATH_CIPHERTEXTS)
+        shutil.copy(pins_directory + '/' + file, ciphertext_directory)
 
-
-
-
-
-    os.chdir(PATH_CIPHERTEXTS)
+    os.chdir(ciphertext_directory)
 
     # Shuffle the file lists again for encryption processing
-
     random.shuffle(lug_files)
     random.shuffle(pin_files)
 
     # Pair each lug file with a pin file
     files = list(zip(lug_files, pin_files))
-    print (files)
-
-
-
-
-
 
     # Execute the encryption and file renaming in parallel using multiprocessing 
-    with multiprocessing.Pool(NUMBER_CORS) as pool:
+    with multiprocessing.Pool(cpu_cores) as pool:
         for _ in pool.imap(generate_data, [(files[i], i, len(files)) for i in range(len(files))]):
             pass
 
-
-
-
     # Clean up the ciphertext directory by removing the original lug and pin files
-    os.chdir(PATH_CIPHERTEXTS)
+    os.chdir(ciphertext_directory)
     for x in [f"{i}" for i in os.listdir() if "pins" in i]:
         os.remove(x)
 

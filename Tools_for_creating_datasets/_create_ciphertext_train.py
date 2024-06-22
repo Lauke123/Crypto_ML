@@ -23,71 +23,67 @@ def generate_data(x):
 
 # guard to avoid child processes executing the entire code 
 # ( important if executed on windows because default is spwan and not fork)
-if __name__ == "__main__":
+def create_ciphertext_train(cpu_cores: int, output_path: str, number_of_files: int = 20, number_of_overlaps: str = "1-12") -> None:
+    """Create the ciphertext in training according to keys stored in the previous step.
 
-    # Configuration parameters
+    Parameters
+    ----------
+    cpu_cores : int
+        amount of cpu cores that should be used during multiprocessing
+    output_path : str
+        absolute path to the directory the data folder should be created in.
+    number_of_files : int
+        the amount of files that are produced, used to replicate the lug_settings x times
+    number_of_overlaps: str
+        Specifies the range of overlaps to be used in encryption
 
-    NUMBER_OF_FILES = 20
-    NUMBER_OF_OVERLAPS = "1-12" # Specifies the range of overlaps to be used in encryption
+    Returns
+    -------
+    None
 
+    """
+    output_directory = output_path
+    data_directory = os.path.join(output_directory, "Data") 
+    keys_directory = os.path.join(data_directory, "1_keys_train")
+    ciphertext_directory = os.path.join(data_directory, "2_ciphertexts_train")  # Ensure  directory with ciphertexts used for training exists
 
-    current_directory = os.getcwd()
-    WORKING_DIR = os.path.join(current_directory, "..")
-    PATH_DATA = os.path.join(WORKING_DIR, "Data") 
-    PATH_KEYS = os.path.join(PATH_DATA, "1_keys_train")
-    PATH_CIPHERTEXTS = os.path.join(PATH_DATA, "2_ciphertexts_train")  # Ensure  directory with ciphertexts used for training exists
-
-    os.makedirs(PATH_CIPHERTEXTS, exist_ok=True)
+    os.makedirs(ciphertext_directory, exist_ok=True)
 
     # Create or ensure the existence of a specific directory for ciphertexts based on the number of overlaps
-    PATH_CIPHERTEXTS = os.path.join(PATH_CIPHERTEXTS, NUMBER_OF_OVERLAPS)
+    ciphertext_directory = os.path.join(ciphertext_directory, number_of_overlaps)
 
-    os.makedirs(PATH_CIPHERTEXTS, exist_ok=True)
+    os.makedirs(ciphertext_directory, exist_ok=True)
 
-    # Set the number of CPU cores for multiprocessing
-    #NUMBER_CORS = multiprocessing.cpu_count()
-    NUMBER_CORS = os.cpu_count()
-    INPUT_SIZE = 500 # Set the sequence lenghtes
 
     # Filter and list lug and pin files from the keys directory based on specified criteria
-
-    lug_files = [f for f in os.listdir(PATH_KEYS) if (NUMBER_OF_OVERLAPS +".") in f] 
+    lug_files = [f for f in os.listdir(keys_directory) if (number_of_overlaps +".") in f] 
     lug_files = [f for f in lug_files if ".tar.gz" in f]
-    pin_files = [f for f in os.listdir(PATH_KEYS) if "pins" in f]
+    pin_files = [f for f in os.listdir(keys_directory) if "pins" in f]
     pin_files = [f for f in pin_files if ".tar.gz" in f]
-    print(lug_files)
-    print(pin_files)
 
     # Copy lug and pin files to the ciphertexts directory
-    os.chdir(PATH_CIPHERTEXTS)
+    os.chdir(ciphertext_directory)
     for file in lug_files:
-        print (file)
-        # os.system(f"cp {PATH_KEYS +'/' +file} {PATH_CIPHERTEXTS+'/'}")
-        shutil.copy(PATH_KEYS + '/' + file, PATH_CIPHERTEXTS)
+        shutil.copy(keys_directory + '/' + file, ciphertext_directory)
 
     for file in pin_files:
-        print (file)
-        # os.system(f"cp {PATH_KEYS+'/'+file} {PATH_CIPHERTEXTS+'/'}")
-        shutil.copy(PATH_KEYS + '/' + file, PATH_CIPHERTEXTS)
+        shutil.copy(keys_directory + '/' + file, ciphertext_directory)
 
 
     # Extract the contents of the copied .tar.gz files and then remove the archives
 
-    os.chdir(PATH_CIPHERTEXTS+'/')
+    os.chdir(ciphertext_directory+'/')
 
     for file in os.listdir():
-        print(file)
         os.system(f"tar -xvzf {file}")
-        # os.system(f"rm {file}")
         os.remove(file)
 
+    # Prepare file paths for lug settings and pin settings by listing them and replicating based on number_of_files
 
-    # Prepare file paths for lug settings and pin settings by listing them and replicating based on NUMBER_OF_FILES
+    os.chdir(ciphertext_directory)
 
-    os.chdir(PATH_CIPHERTEXTS)
-
-    lug_setting_files = [f"overlaps_{NUMBER_OF_OVERLAPS}/" + s for s in os.listdir(f"overlaps_{NUMBER_OF_OVERLAPS}/")]
-    lug_setting_files = lug_setting_files * NUMBER_OF_FILES
+    lug_setting_files = [f"overlaps_{number_of_overlaps}/" + s for s in os.listdir(f"overlaps_{number_of_overlaps}/")]
+    lug_setting_files = lug_setting_files * number_of_files
 
     pin_folders = [folder for folder in os.listdir() if "pin" in folder]
 
@@ -95,28 +91,21 @@ if __name__ == "__main__":
     for folder in pin_folders:
         pin_setting_files += [folder +'/'+ files for files in os.listdir(folder)]
 
-
-    print (pin_setting_files)
-
-    print (lug_setting_files)
-
-
-    os.chdir(PATH_CIPHERTEXTS+"/")
+    os.chdir(ciphertext_directory+"/")
     # Shuffle the lists of lug and pin setting files to randomize the encryption process
     random.shuffle(lug_setting_files)
     random.shuffle(pin_setting_files)
 
     # Pair each lug setting file with a pin setting file
     files = list(zip(lug_setting_files, pin_setting_files))
-    print (files)
 
     # Use multiprocessing to encrypt data using the paired lug and pin setting files
-    with multiprocessing.Pool(NUMBER_CORS) as pool:
+    with multiprocessing.Pool(cpu_cores) as pool:
         for _ in pool.imap(generate_data, [(files[i], i, len(files)) for i in range(len(files))]):
             pass
 
     # Clean up the directory by removing extracted lug and pin folders
-    os.chdir(PATH_CIPHERTEXTS)
+    os.chdir(ciphertext_directory)
     for x in [f"{i}" for i in os.listdir() if "pins" in i]:
         # os.system(x)
         shutil.rmtree(x)
@@ -126,7 +115,7 @@ if __name__ == "__main__":
         shutil.rmtree(x)
 
     # Rename the generated files to include the number of overlaps in their name
-    os.chdir(PATH_CIPHERTEXTS)
-    for x in [(f"{i}", f"{i.split('.')[0]+'_'+NUMBER_OF_OVERLAPS}.json") for i in os.listdir()]:
+    os.chdir(ciphertext_directory)
+    for x in [(f"{i}", f"{i.split('.')[0]+'_'+number_of_overlaps}.json") for i in os.listdir()]:
         # os.system(x)
         shutil.move(x[0], x[1])
