@@ -1,6 +1,6 @@
-import torch
 from torch import nn
 from torchview import draw_graph
+
 
 # a basic building block which can be included in other neural networks. It has two consecutive Conv layers and a skip connection from input to output
 class ResidualBlock(nn.Module):
@@ -14,7 +14,7 @@ class ResidualBlock(nn.Module):
                                stride=stride, padding=padding)
         self.bn2 = nn.BatchNorm1d(channels)
         self.relu2 = nn.ReLU()
-           
+
     def forward(self, x):
         out = self.relu(self.bn1(self.conv1(x)))
         out = self.relu2(self.bn2(self.conv2(out)))
@@ -22,11 +22,10 @@ class ResidualBlock(nn.Module):
         return out
 
 # This represents the model of the original implementation in tensorflow
-# the model does not include kernel regularisation like the model in tensorflow, its more intricate to implemnt this in pytorch, so for the first pytorch implementation its not included
-# adding weight decay or manually adding the weights to the loss function could be a solution
+# the model does not include kernel regularisation like the model in tensorflow, it is manually calculated and added to the loss during the learning process
 class Model(nn.Module):
 
-    def __init__(self, input_length=100, num_filters=32, num_outputs=1, d1=512, d2=512, ks=5, depth=5, reg_param=0.0002, final_activation='sigmoid'):
+    def __init__(self, input_length=100, num_filters=32, num_outputs=1, d1=512, d2=512, ks=5, depth=5, final_activation='sigmoid'):
         super(Model, self).__init__()
         self.conv_1 = nn.Conv1d(in_channels=1, out_channels=num_filters, kernel_size=1, padding="same", stride=1)
         self.bn1 = nn.BatchNorm1d(num_filters)
@@ -42,7 +41,7 @@ class Model(nn.Module):
         self.linear3 = nn.Linear(d2, num_outputs)
         self.sigmoid = nn.Sigmoid()
 
-    
+
     def forward(self, x):
         out = self.conv_1(x)
         out = self.bn1(out)

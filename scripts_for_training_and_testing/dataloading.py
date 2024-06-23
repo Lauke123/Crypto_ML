@@ -39,7 +39,7 @@ def load_partial_data(count,filelist, path_data, inputsize, records_per_file=Non
 
         x_lst.append(x_tmp)
         y_lst.append(y_tmp)
-        
+
     # Concatenate all loaded data into a single array for both x and y
     x = np.concatenate(x_lst, axis=0)
     y = np.concatenate(y_lst, axis=0)
@@ -49,7 +49,7 @@ def load_partial_data(count,filelist, path_data, inputsize, records_per_file=Non
     x = np.subtract(x, 65)
     x = np.array(x, dtype='float32')
     x = np.divide(x, 25)
-    
+
     # Convert y data to float32
     y = np.array(y, dtype='float32')
 

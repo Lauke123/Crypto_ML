@@ -15,9 +15,12 @@ class LearnerDataset(Dataset):
                  data_path:str,
                  pin:int,
                  filelist,
-                 device):
+                 device,
+                 number_of_records_per_file: int = 15000,
+                 number_of_files: int = 100):
 
-        x, y = load_partial_data(count=10,records_per_file=1500, filelist=filelist, path_data=data_path, inputsize=inputsize)
+        x, y = load_partial_data(count=number_of_files,records_per_file=number_of_records_per_file,
+                                 filelist=filelist, path_data=data_path, inputsize=inputsize)
         targets = y[:, pin]
 
         X_train, X_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)
@@ -60,9 +63,11 @@ class Learner:
     '''
     def __init__(self, model:torch.nn.Module,
                  dataset:LearnerDataset,
-                 learningrate=0.001,
-                 l2_kernel_regularizer=False):
+                 learningrate: float = 0.001,
+                 l2_kernel_regularizer: bool = True,
+                 l2_kernel_reg_parameter: float = 0.0002):
         self.l2_kernel_regularizer = l2_kernel_regularizer
+        self.l2_kernel_reg_parameter = l2_kernel_reg_parameter
         self.model = model
         self.criterion = nn.BCELoss()
         self.learningrate = learningrate
@@ -85,7 +90,7 @@ class Learner:
                     if self.l2_kernel_regularizer:
                         conv_weight = [p for name, p in self.model.named_parameters() if "conv" in name and "weight" in name]
                         for weight in conv_weight:
-                            loss += torch.norm(weight, p=2)
+                            loss += torch.norm(weight, p=2) * self.l2_kernel_reg_parameter
                     # optimze the model with backpropagation
                     optimizer.zero_grad()
                     loss.backward()
@@ -108,7 +113,7 @@ class Learner:
                 if self.l2_kernel_regularizer:
                     conv_weight = [p for name, p in self.model.named_parameters() if "conv" in name and "weight" in name]
                     for weight in conv_weight:
-                        loss += torch.norm(weight, p=2)
+                        loss += torch.norm(weight, p=2) * self.l2_kernel_reg_parameter
                 eval_pred = torch.round(eval_pred)
 
                 # count the number of correct predictions
