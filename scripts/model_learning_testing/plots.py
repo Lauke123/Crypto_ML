@@ -1,6 +1,8 @@
-from matplotlib import pyplot as plt
-import numpy as np
 import os
+
+import numpy as np
+from matplotlib import pyplot as plt
+
 
 class PlotGenerator:
     def __init__(self, storage_path:str):

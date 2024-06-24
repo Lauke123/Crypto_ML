@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 import torch
 import tqdm
-from dataloading import load_partial_data
-from model_testing import ModelTester
-from plots import PlotGenerator
+from model_learning_testing.dataloading import load_partial_data
+from model_learning_testing.model_testing import ModelTester
+from model_learning_testing.plots import PlotGenerator
 
 
 # Function to extract numeric parts from filenames for sorting
@@ -156,4 +156,3 @@ if __name__ == "__main__":
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
     args = parser.parse_args()
     testing(output_directory_path=args.output_folder_path, model_input_size=200)
-

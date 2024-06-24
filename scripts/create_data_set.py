@@ -1,12 +1,12 @@
 import argparse
 import os
 
-from _create_ciphertext_train import create_ciphertext_train
-from _create_ciphertexts_test import create_ciphertext_test
-from _create_keys_test import create_keys_test
-from _create_keys_train import create_keys_train
-from _create_npy_data_test import create_npy_data_test
-from _create_npy_data_train import create_npy_data_train
+from dataset_creation._create_ciphertext_train import create_ciphertext_train
+from dataset_creation._create_ciphertexts_test import create_ciphertext_test
+from dataset_creation._create_keys_test import create_keys_test
+from dataset_creation._create_keys_train import create_keys_train
+from dataset_creation._create_npy_data_test import create_npy_data_test
+from dataset_creation._create_npy_data_train import create_npy_data_train
 
 
 def main() -> None:

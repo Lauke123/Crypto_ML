@@ -1,14 +1,17 @@
 import json
+import random
 import sys
 from collections import Counter
-import random
 
-# sys.path.append("../m209 Brian Neal")
-from m209.keylist.generate import generate_key_list, KeyListGenError, generate_lugs, generate_pin_list
 from m209.keylist.data import GROUP_A, GROUP_B
+from m209.keylist.generate import (
+    KeyListGenError,
+    generate_key_list,
+    generate_lugs,
+    generate_pin_list,
+)
+
 DEFAULT_FILENAME = "key.json"
-
-
 
 def _lug_selection(min_overlaps=None, max_overlaps=None):
     while True:

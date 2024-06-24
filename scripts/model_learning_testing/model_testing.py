@@ -1,6 +1,7 @@
+import math
+
 import numpy as np
 import torch
-import math
 from torch.nn import Module
 
 

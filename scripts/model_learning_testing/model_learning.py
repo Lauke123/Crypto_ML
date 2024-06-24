@@ -1,9 +1,10 @@
 import torch
+from dataloading import load_partial_data
+from sklearn.model_selection import train_test_split
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
-from dataloading import load_partial_data
-from sklearn.model_selection import train_test_split
+
 
 class LearnerDataset(Dataset):
     ''' 

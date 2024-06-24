@@ -5,8 +5,8 @@ import os
 import numpy as np
 import pandas as pd
 import torch
-from model import Model
-from model_learning import Learner, LearnerDataset
+from model_learning_testing.model import Model
+from model_learning_testing.model_learning import Learner, LearnerDataset
 
 
 def training(output_directory_path: str, number_of_overlaps: str = "1-12",
@@ -124,5 +124,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
     args = parser.parse_args()
+    # adjust the parameters for training if you want to apply some form of control to the training process
     training(args.output_folder_path, required_test_accuracy_pin=0.5)
 
