@@ -4,7 +4,7 @@ import random
 import re
 import shutil
 
-from _3_encrypt import Encrypt
+from ._3_encrypt import Encrypt
 
 SEQUENCE_SIZE = 500
 

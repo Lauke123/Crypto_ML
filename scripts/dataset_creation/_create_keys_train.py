@@ -9,7 +9,7 @@ import shutil
 import tqdm
 
 # _1_keygen_json is a custom module for generating encryption keys. KeyGen is a class from this module used specifically for creating keys.
-from _1_keygen_json import KeyGen
+from ._1_keygen_json import KeyGen
 
 
 def create_keys_train(cpu_cores: int, output_path: str, keys_per_file: int = 100_000, num_key_files: int = 20) -> None:

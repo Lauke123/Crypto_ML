@@ -1,8 +1,9 @@
-import os, shutil
-import random
 import multiprocessing
+import os
+import random
+import shutil
 
-from _3_encrypt import Encrypt
+from ._3_encrypt import Encrypt
 
 # Initialize the Encrypt class with specified parameters
 m209 = Encrypt(destin_path="", count_a=500,

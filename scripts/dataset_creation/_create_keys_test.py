@@ -6,7 +6,7 @@ from pathlib import Path
 import json
 import re
 
-from _1_keygen_json import KeyGen
+from ._1_keygen_json import KeyGen
 
 def create_keys_test(cpu_cores: int, output_path: str, lugs_keys_per_file: int = 1000, lugs_num_key_files: int = 20, 
                      pin_num_key_files: int = 103, pin_keys_per_file: int = 1000,
