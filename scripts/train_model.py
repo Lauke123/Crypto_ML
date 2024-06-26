@@ -123,7 +123,8 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
+    parser.add_argument("-m", "--model_size", type=int, default=200, help="defines the size of the input layer of the model" )
     args = parser.parse_args()
     # adjust the parameters for training if you want to apply some form of control to the training process
-    training(args.output_folder_path, required_test_accuracy_pin=0.5)
+    training(args.output_folder_path, required_test_accuracy_pin=0.5, model_input_size=args.model_size)
 
