@@ -20,74 +20,41 @@ def extract_numbers(filename):
         return tuple(map(int, matches[0]))
     return (0, 0)  # Default return value if no numbers found
 
-def testing(output_directory_path: str, model_input_size: int = 200) -> None:
-    """Test the models in the given folder with the testing data in that folder.
+def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data_directory: str,
+                    model_lst: list, plotgenerator: PlotGenerator, modeltester: ModelTester, filelist: list):
 
-    Parameters
-    ----------
-    output_directory_path: str
-        the directory the data folder is in that was created during the execution of create_dataset.py
-    model_input_size : int
-        the size of the input that model was trained with
+    x, y = load_partial_data(103, filelist=filelist,
+                            path_data=npy_data_directory, inputsize=model_input_size)
 
-    Returns
-    -------
-    None
+    all_predictions_mixed_overlaps = modeltester.compute_predictions(x, 1000)
+    correct_counts_mixed_overlaps = modeltester.count_correct_predictions(all_predictions_mixed_overlaps, y, x)
 
-    """
-    # Define paths to the working directories and data
-    output_directory = output_directory_path
+    # Compute accuracies of the dataset that has mixed overlaps
+    accuracies_mixed_overlaps = [(count / len(model_lst)) * 100 for count in correct_counts_mixed_overlaps]
+    # Calculate mean and median of accuracies
+    mean_accuracy_mixed_overlaps = np.mean(accuracies_mixed_overlaps)
+    median_accuracy_mixed_overlaps = np.median(accuracies_mixed_overlaps)
 
-    data_directory = os.path.join(output_directory, "Data")
-    test_results_directory = os.path.join(output_directory, "test_results")
-    plots_directory = os.path.join(test_results_directory, "Plots")
-    plots_input_size_directory = os.path.join(plots_directory, f"model_{model_input_size}")
-    npy_data_directory = os.path.join(data_directory, "3_data_npy_test")
-    wheel = "wheel1"
-    npy_data_directory = os.path.join(npy_data_directory, wheel)
-    model_directory = os.path.join(data_directory, "models")
-    model_input_size_directory =os.path.join(model_directory,f"models_seq_{model_input_size}/")
+    # save the results of the accuracies vor varying overlaps in csv file
+    csv_file = os.path.join(test_results_directory, "accuracies_mixed_overlaps.csv")
+    accuracy_mixed_df = pd.DataFrame([{
+        "mean_accuracy_mixed_overlaps" : mean_accuracy_mixed_overlaps,
+        "median_accuracy_mixed_overlaps": median_accuracy_mixed_overlaps}])
+    accuracy_mixed_df.to_csv(csv_file, index=False)
 
-    # create new directory for the plots generated during testing 
-    os.makedirs(plots_input_size_directory, exist_ok=True)
+    plotgenerator.generate_plot(accuracies_mixed_overlaps,
+                                f"Accuracy distribution for n={model_input_size}",
+                                "average_accuracy_adjusted")
 
-
-    # if possible use gpu instead of cpu
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    # Load and prepare models for evaluation
-    model_lst = [file for file in os.listdir(model_input_size_directory) if 'best'  in file]
-    for i in tqdm.tqdm(range(len(model_lst))):
-        myname = model_lst[i]
-        model_lst[i] = torch.load(model_input_size_directory+myname)
-        model_lst[i].myname = myname
-        model_lst[i].to(device)
-
-    plotgenerator = PlotGenerator(plots_input_size_directory)
-    modeltester = ModelTester(model_lst, device, model_input_size)
-
-    # Prepare the testing data file list
-    filelist = os.listdir(npy_data_directory)
-
-    # Pairing x and y files
-    filelist = [
-        (x, y) for x in filelist if 'x_' in x
-        for y in filelist if x.split('_')[1] == y.split('_')[1]
-        and "y_" in y
-    ]
-
-    # Sorting based on the numeric values extracted from filenames
-    filelist.sort(key=lambda x: extract_numbers(x[0]))  # sorting by the first file's numbers
-
+def test_varying_lugs(test_results_directory: str, npy_data_directory: str, plotgenerator: PlotGenerator,
+                      modeltester: ModelTester, filelist: list):
     accuracy_results = []
-
     # Evaluation loop for each file pair in the testing dataset
     for file in filelist:
         pattern = r'non-shared-lugs(\d+)-overlaps(\d+)'
         match = re.search(pattern, file[1])
         if match:
             non_shared_value,overlaps_value = match.groups()
-            print(f"Non-shared lugs: {non_shared_value}. Overlaps: {overlaps_value}")
 
         x = np.load(npy_data_directory + '/' + file[0])
         y = np.load(npy_data_directory + '/' + file[1])
@@ -127,28 +94,66 @@ def testing(output_directory_path: str, model_input_size: int = 200) -> None:
     csv_file = os.path.join(test_results_directory, "accuracies_varying_overlaps.csv")
     accuracy_df.to_csv(csv_file, index=False)
 
-    x, y = load_partial_data(103, filelist=filelist,
-                            path_data=npy_data_directory, inputsize=model_input_size)
+def testing(output_directory_path: str, model_input_size: int = 200) -> None:
+    """Test the models in the given folder with the testing data in that folder.
 
-    all_predictions_mixed_overlaps = modeltester.compute_predictions(x, 1000)
-    correct_counts_mixed_overlaps = modeltester.count_correct_predictions(all_predictions_mixed_overlaps, y, x)
+    Parameters
+    ----------
+    output_directory_path: str
+        the directory the data folder is in that was created during the execution of create_dataset.py
+    model_input_size : int
+        the size of the input that model was trained with
 
-    # Compute accuracies of the dataset that has mixed overlaps
-    accuracies_mixed_overlaps = [(count / len(model_lst)) * 100 for count in correct_counts_mixed_overlaps]
-    # Calculate mean and median of accuracies
-    mean_accuracy_mixed_overlaps = np.mean(accuracies_mixed_overlaps)
-    median_accuracy_mixed_overlaps = np.median(accuracies_mixed_overlaps)
+    Returns
+    -------
+    None
 
-    # save the results of the accuracies vor varying overlaps in csv file
-    accuracy_mixed_df = pd.DataFrame([{
-        "mean_accuracy_mixed_overlaps" : mean_accuracy_mixed_overlaps,
-        "median_accuracy_mixed_overlaps": median_accuracy_mixed_overlaps}])
-    csv_file = os.path.join(test_results_directory, "accuracies_mixed_overlaps.csv")
-    accuracy_mixed_df.to_csv(csv_file, index=False)
+    """
+    # Define paths to the working directories and data
+    output_directory = output_directory_path
+    data_directory = os.path.join(output_directory, "Data")
+    test_results_directory = os.path.join(output_directory, "test_results")
+    plots_directory = os.path.join(test_results_directory, "Plots")
+    plots_input_size_directory = os.path.join(plots_directory, f"model_{model_input_size}")
+    npy_data_directory = os.path.join(data_directory, "3_data_npy_test")
+    wheel = "wheel1"
+    npy_data_directory = os.path.join(npy_data_directory, wheel)
+    model_directory = os.path.join(data_directory, "models")
+    model_input_size_directory =os.path.join(model_directory,f"models_seq_{model_input_size}/")
+    # create new directory for the plots generated during testing 
+    os.makedirs(plots_input_size_directory, exist_ok=True)
 
-    plotgenerator.generate_plot(accuracies_mixed_overlaps,
-                                f"Accuracy distribution for n={model_input_size}",
-                                "average_accuracy_adjusted")
+    # if possible use gpu instead of cpu
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    # Load and prepare models for evaluation
+    model_lst = [file for file in os.listdir(model_input_size_directory) if 'best'  in file]
+    for i in tqdm.tqdm(range(len(model_lst))):
+        myname = model_lst[i]
+        model_lst[i] = torch.load(model_input_size_directory+myname)
+        model_lst[i].myname = myname
+        model_lst[i].to(device)
+
+    plotgenerator = PlotGenerator(plots_input_size_directory)
+    modeltester = ModelTester(model_lst, device, model_input_size)
+
+    # Prepare the testing data file list
+    filelist = os.listdir(npy_data_directory)
+    # Pairing x and y files
+    filelist = [
+        (x, y) for x in filelist if 'x_' in x
+        for y in filelist if x.split('_')[1] == y.split('_')[1]
+        and "y_" in y
+    ]
+    # Sorting based on the numeric values extracted from filenames
+    filelist.sort(key=lambda x: extract_numbers(x[0]))  # sorting by the first file's numbers
+
+    # test the model's accuracies for a specific amount of overlaps and non-shared lugs
+    test_varying_lugs(test_results_directory, npy_data_directory, plotgenerator,
+                      modeltester, filelist)
+    # test the model's accuracies for a random mix of all possible overlaps and non-shared lugs
+    test_mixed_lugs(model_input_size, test_results_directory, npy_data_directory,
+                    model_lst, plotgenerator, modeltester, filelist)
 
 
 if __name__ == "__main__":

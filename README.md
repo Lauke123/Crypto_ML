@@ -18,12 +18,15 @@ For encrypting data, we use an external M-209 implementation found in Brian Neal
 ## Getting Started
 
 **Setup**:
-    1. Install miniconda
-    2. Create conda environment with the environment file in root of repository: *conda env create -f environment.yml*
-    4. Install the m209 package:
-        - activate the created environment 
-        - switch to the m209 Brian Neal directory
-        - execute command: *pip install .* 
+1. Install miniconda
+2. Create conda environment with the environment file in root of repository:  
+```bash
+    conda env create -f environment.yml
+```
+3. Install the m209 package:
+    - activate the created environment 
+    - switch to the m209 Brian Neal directory
+    - execute command: ```pip install .```
 
 **Create dataset**: Run the script *create_data_set.py* in the scripts folder. You have to give a path to the folder you want your data to be generated in.
 
