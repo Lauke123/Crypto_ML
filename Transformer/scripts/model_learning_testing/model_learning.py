@@ -89,10 +89,11 @@ class Learner:
                     prediction = self.model.forward(inputs)
                     # Reshape labels to embedingsize
                     #For example: label = 1 -> label = 1,1,1...1,1 (dimensionsize:512)
-                    labels_reshaped = labels.unsqueeze(1).expand(-1,512,-1)
 
-                    loss = self.criterion(prediction, labels_reshaped)
+                    prediction = torch.squeeze(prediction)
 
+                    loss = self.criterion(prediction, labels)
+                    
                     # optimze the model with backpropagation
                     optimizer.zero_grad()
                     loss.backward()
@@ -109,10 +110,8 @@ class Learner:
             for _, (inputs, labels) in enumerate(dataloader):
                 # compute the predictions from the testset
                 eval_pred = self.model.forward(inputs)
-                eval_pred = torch.transpose(eval_pred, 1, 2)
                 # the mean of each prediction embedding (is between 0 and 1) 
                 # describes the prediction for one pin
-                eval_pred = torch.mean(eval_pred, 2)
                 eval_pred = torch.flatten(eval_pred)
                 labels = torch.flatten(labels)
                 loss = self.criterion(eval_pred, labels)

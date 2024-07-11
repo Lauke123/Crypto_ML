@@ -11,7 +11,7 @@ from model_learning_testing.model_learning import Learner, LearnerDataset
 def training(output_directory_path: str, number_of_overlaps: str = "1-12",
              model_input_size: int = 200, epochs: int = 10, batch_size: int = 1000,
              required_test_accuracy_pin: float = 0.88,
-             dataset_files:int = 10, dataset_records_per_file: int = 1500) -> None:
+             dataset_files:int = 1, dataset_records_per_file: int = 1500) -> None:
     """Train the models with the data stored in the output path.
 
     Parameters
@@ -64,7 +64,7 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
 
 
     while True:
-        model = Encoder(512)
+        model = Encoder(1)
         model.to(device)
 
         dataset = LearnerDataset(model_input_size, npy_data_directory, pinwheel_size,

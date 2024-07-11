@@ -47,7 +47,7 @@ def load_partial_data(count,filelist, path_data, inputsize, records_per_file=Non
     # Preprocess the data as before
     print("Calculating float32...")
     x = np.subtract(x, 65)
-    x = np.array(x, dtype='int32')
+    x = np.array(x, dtype='float32')
 
 
     # Convert y data to float32
