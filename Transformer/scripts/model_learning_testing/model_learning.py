@@ -90,7 +90,7 @@ class Learner:
                     # Reshape labels to embedingsize
                     #For example: label = 1 -> label = 1,1,1...1,1 (dimensionsize:512)
 
-                    prediction = torch.squeeze(prediction)
+                    prediction = torch.squeeze(prediction[:,:26,:])
 
                     loss = self.criterion(prediction, labels)
                     
@@ -112,7 +112,7 @@ class Learner:
                 eval_pred = self.model.forward(inputs)
                 # the mean of each prediction embedding (is between 0 and 1) 
                 # describes the prediction for one pin
-                eval_pred = torch.flatten(eval_pred)
+                eval_pred = torch.flatten(eval_pred[:,:26,:])
                 labels = torch.flatten(labels)
                 loss = self.criterion(eval_pred, labels)
 

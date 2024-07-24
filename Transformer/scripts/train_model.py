@@ -11,7 +11,7 @@ from model_learning_testing.model_learning import Learner, LearnerDataset
 def training(output_directory_path: str, number_of_overlaps: str = "1-12",
              model_input_size: int = 200, epochs: int = 10, batch_size: int = 1000,
              required_test_accuracy_pin: float = 0.88,
-             dataset_files:int = 1, dataset_records_per_file: int = 1500) -> None:
+             dataset_files:int = 100, dataset_records_per_file: int = 15000) -> None:
     """Train the models with the data stored in the output path.
 
     Parameters

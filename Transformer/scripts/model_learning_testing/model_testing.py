@@ -44,11 +44,7 @@ class ModelTester:
             start = i * batchsize
             end = min((i + 1) * batchsize,len(x))
             model_predictions_batch = self.model.forward(torch.tensor(x[start:end],
-                                                                device=self.device))
-            model_predictions_batch = torch.transpose(model_predictions_batch, 1, 2)
-            # the mean of each prediction embedding (is between 0 and 1) 
-            # describes the prediction for one pin
-            model_predictions_batch = torch.mean(model_predictions_batch, 2)
+                                                                device=self.device))          
             model_predictions_batch = torch.round(model_predictions_batch).squeeze()
             model_predictions_batch = model_predictions_batch.detach().cpu().numpy()
             all_predictions.extend(model_predictions_batch)
