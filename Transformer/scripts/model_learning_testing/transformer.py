@@ -19,6 +19,7 @@ class Encoder(nn.Module):
         self.linear_layer1 = nn.Linear(200, 26)
         self.linear_layer = nn.Linear(256, 1)
         self.sigmoid = nn.Sigmoid()
+        self.conv_layer = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=(175, 256))
 
 
     def forward(self, x):
@@ -30,8 +31,9 @@ class Encoder(nn.Module):
         #out = torch.transpose(out, 1, 2)
         #out = self.linear_layer1(out)
         #out = torch.transpose(out, 1, 2)
-        out = self.linear_layer(out)
+        out = self.conv_layer(out.unsqueeze(1))
+        #out = self.linear_layer(out)
         print(out.shape)
         #out = torch.transpose(out, 1, 2)
-        out = self.sigmoid(out[:,:26,:])
+        out = self.sigmoid(out)
         return out
