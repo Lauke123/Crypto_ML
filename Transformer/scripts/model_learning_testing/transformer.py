@@ -24,12 +24,14 @@ class Encoder(nn.Module):
     def forward(self, x):
         # Emmbedinglayer Batchsize x sequencelength -> batchsize 
         out = self.embedding_layer(x)
+        print(out.shape)
         #out = x.unsqueeze(2)
         out = self.encoder(out)
         #out = torch.transpose(out, 1, 2)
         #out = self.linear_layer1(out)
         #out = torch.transpose(out, 1, 2)
         out = self.linear_layer(out)
+        print(out.shape)
         #out = torch.transpose(out, 1, 2)
-        out = self.sigmoid(out)
+        out = self.sigmoid(out[:,:26,:])
         return out

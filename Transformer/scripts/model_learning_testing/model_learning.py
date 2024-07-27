@@ -91,6 +91,7 @@ class Learner:
                     #For example: label = 1 -> label = 1,1,1...1,1 (dimensionsize:512)
 
                     prediction = torch.squeeze(prediction[:,:26,:])
+                    print(prediction.shape)
 
                     loss = self.criterion(prediction, labels)
                     
