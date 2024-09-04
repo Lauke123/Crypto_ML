@@ -73,7 +73,7 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
         learner = Learner(model, dataset, learningrate=0.001)
 
         # model training
-        #learner.fit(batch_size, epochs, True, device=device)
+        learner.fit(batch_size, epochs, True, device=device)
 
         # model evaluation
         test_loss, test_accuracy = learner.evaluate()
