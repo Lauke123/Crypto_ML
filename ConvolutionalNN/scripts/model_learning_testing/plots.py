@@ -8,11 +8,11 @@ class PlotGenerator:
     def __init__(self, storage_path:str):
         self.storage_path = storage_path
 
-    def generate_plot(self, accuracies: list, title:str, plot_name: str):
+    def generate_plot(self, accuracies: list, title:str, plot_name: str, bins:int=53):
         plt.clf()  # Clear the previous figure
         average_accuracy = np.mean(accuracies)
         plt.title(title)
-        plt.hist(accuracies, bins=53, color='ivory',  edgecolor='black')
+        plt.hist(accuracies, bins=bins, color='lightgray',  edgecolor='black', alpha=0.7)
         plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
         plt.text(average_accuracy, plt.ylim()[1]/2, f'Average: {average_accuracy:.2f}%', rotation=90)
 

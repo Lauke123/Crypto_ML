@@ -44,7 +44,10 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
 
     plotgenerator.generate_plot(accuracies_mixed_overlaps,
                                 f"Accuracy distribution for n={model_input_size}",
-                                "average_accuracy_adjusted")
+                                "average_accuracies_mixed_overlaps")
+    plotgenerator.generate_plot(accuracies_mixed_overlaps,
+                                f"Accuracy distribution for n={model_input_size}",
+                                "average_accuracies_mixed_overlaps_adjusted_bins")
 
 def test_varying_lugs(test_results_directory: str, npy_data_directory: str, plotgenerator: PlotGenerator,
                       modeltester: ModelTester, filelist: list):
