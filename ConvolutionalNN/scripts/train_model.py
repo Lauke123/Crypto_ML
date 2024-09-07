@@ -117,7 +117,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
     parser.add_argument("-m", "--model_size", type=int, default=200, help="defines the size of the input layer of the model" )
+    parser.add_argument("-b", "--batch_size", type=int, default=1000, help="defines the size of the batches used during training" )
+    parser.add_argument("-f", "--number_filters", type=int, default=100, help="defines amount of filters used in a convolutional layer of the model" )
+    parser.add_argument("-d", "--dataset_files", type=int, default=100, help="defines the amount of data files used during training" )
+    parser.add_argument("-r", "--records_per_file", type=int, default=15000, help="defines number of records in each file used for training" )
     args = parser.parse_args()
     # adjust the parameters for training if you want to apply some form of control to the training process
-    training(args.output_folder_path, required_test_accuracy_pin=0.88, model_input_size=args.model_size)
+    training(args.output_folder_path, required_test_accuracy_pin=0.88, model_input_size=args.model_size,
+             batch_size=args.batch_size, dataset_files=args.dataset_files, dataset_records_per_file=args.records_per_file,
+             num_filters=args.number_filters)
 
