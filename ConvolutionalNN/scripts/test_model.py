@@ -162,5 +162,6 @@ def testing(output_directory_path: str, model_input_size: int = 200) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
+    parser.add_argument("-m", "--model_size", type=int, default=200, help="size of the input layer of the model that is being tested" )
     args = parser.parse_args()
-    testing(output_directory_path=args.output_folder_path, model_input_size=200)
+    testing(output_directory_path=args.output_folder_path, model_input_size=args.model_size)

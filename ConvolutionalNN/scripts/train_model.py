@@ -121,9 +121,11 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--number_filters", type=int, default=100, help="defines amount of filters used in a convolutional layer of the model" )
     parser.add_argument("-d", "--dataset_files", type=int, default=100, help="defines the amount of data files used during training" )
     parser.add_argument("-r", "--records_per_file", type=int, default=15000, help="defines number of records in each file used for training" )
+    parser.add_argument("-t", "--test_accuracy", type=float, default=0.88, help="defines accuracy of model that is needed to not retrain it" )
+
     args = parser.parse_args()
     # adjust the parameters for training if you want to apply some form of control to the training process
-    training(args.output_folder_path, required_test_accuracy_pin=0.88, model_input_size=args.model_size,
+    training(args.output_folder_path, required_test_accuracy_pin=args.test_accuracy, model_input_size=args.model_size,
              batch_size=args.batch_size, dataset_files=args.dataset_files, dataset_records_per_file=args.records_per_file,
              num_filters=args.number_filters)
 
