@@ -115,9 +115,8 @@ def testing(output_directory_path: str, model_input_size: int = 200) -> None:
     # Define paths to the working directories and data
     output_directory = output_directory_path
     data_directory = os.path.join(output_directory, "Data")
-    test_results_directory = os.path.join(output_directory, "test_results")
-    plots_directory = os.path.join(test_results_directory, "Plots")
-    plots_input_size_directory = os.path.join(plots_directory, f"model_{model_input_size}")
+    test_results_directory = os.path.join(output_directory, f"test_results_model_{model_input_size}")
+    plots_input_size_directory = os.path.join(test_results_directory, "Plots")
     npy_data_directory = os.path.join(data_directory, "3_data_npy_test")
     wheel = "Wheel1"
     npy_data_directory = os.path.join(npy_data_directory, wheel)

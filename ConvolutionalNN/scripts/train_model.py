@@ -104,9 +104,9 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
                 break
 
     # create new directory for the model_accuracies
-    accuracies_directory = os.path.join(output_directory, "model_accuracies")
+    accuracies_directory = os.path.join(output_directory, "model_accuracies_training")
     os.mkdir(accuracies_directory)
-    csv_file = os.path.join(accuracies_directory, "out.csv")
+    csv_file = os.path.join(accuracies_directory, f"cnn_{model_input_size}_accuracies.csv")
     # Convert the list of accuracies to a DataFrame
     accuracy_df = pd.DataFrame(model_accuracies)
     # Save the DataFrame to an csv file
