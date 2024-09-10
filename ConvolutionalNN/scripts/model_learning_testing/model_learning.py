@@ -115,7 +115,7 @@ class Learner:
                 if self.l2_kernel_regularizer:
                     conv_weight = [p for name, p in self.model.named_parameters() if "conv" in name and "weight" in name]
                     for weight in conv_weight:
-                        loss += torch.norm(weight, p=2) * self.l2_kernel_reg_parameter
+                        loss += torch.norm(weight, p=2)**2 * self.l2_kernel_reg_parameter
                 eval_pred = torch.round(eval_pred)
 
                 # count the number of correct predictions

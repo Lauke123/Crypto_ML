@@ -29,6 +29,8 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
         the amount of files that should be randomly sampled from the availabe data for training
     dataset_records_per_file: int
         amount of records from each file that is used for training
+    num_filters: int
+        number of filters of the convolutional layers of the model
 
     Returns
     -------
@@ -76,10 +78,10 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
             learner = Learner(model_pin, dataset)
 
             # model training
-            learner.fit(batch_size, epochs, True, device=device)
+            learner.fit(batch_size, epochs, shuffle=True, device=device)
 
             # model evaluation
-            test_loss_pin, test_accuracy_pin = learner.evaluate()
+            test_loss_pin, test_accuracy_pin = learner.evaluate(batchsize=batch_size)
             progress_data.append(test_accuracy_pin)
 
             print(f"Seq Length {model_input_size}, Wheel 1, Pin {pin}: Test Loss: {test_loss_pin}, Test Accuracy: {test_accuracy_pin}")
@@ -105,7 +107,7 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
 
     # create new directory for the model_accuracies
     accuracies_directory = os.path.join(output_directory, "model_accuracies_training")
-    os.mkdir(accuracies_directory)
+    os.makedirs(accuracies_directory, exist_ok=True)
     csv_file = os.path.join(accuracies_directory, f"cnn_{model_input_size}_accuracies.csv")
     # Convert the list of accuracies to a DataFrame
     accuracy_df = pd.DataFrame(model_accuracies)
