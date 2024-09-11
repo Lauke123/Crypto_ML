@@ -27,6 +27,7 @@ class Encoder(nn.Module):
         # Emmbedinglayer Batchsize x sequencelength -> batchsize 
         out = self.embedding_layer(x)
         out = self.encoder(out)
+        out = torch.transpose(out, 1, 2)
         out = self.linear_layer1(out)
         out = torch.transpose(out, 1, 2)
         out = self.linear_layer2(out)
