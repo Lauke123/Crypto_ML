@@ -26,6 +26,7 @@ class LearnerDataset(Dataset):
         targets = y[:, pin]
 
         X_train, X_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)
+        X_train, _, y_train, _ = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
 
         # test shape of training data, adding an extra dimension so the channel has a dimension in the tensor. 
         # The conv layer in the model expects a channel dimension with size = 1
