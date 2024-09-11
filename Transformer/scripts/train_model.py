@@ -1,15 +1,15 @@
 import argparse
 import gc
 import os
+import sys
 import importlib
 import pandas as pd
 import torch
-from model_learning_testing.transformerbasic import Encoder
 from model_learning_testing.model_learning import Learner, LearnerDataset
 
 
-def training(output_directory_path: str, number_of_overlaps: str = "1-12",
-             model_input_size: int = 200, epochs: int = 10, batch_size: int = 100,
+def training(output_directory_path: str, transformer_file_name:str, number_of_overlaps: str = "1-12",
+             model_input_size: int = 200, epochs: int = 10, batch_size: int = 1000,
              required_test_accuracy_pin: float = 0.88,
              dataset_files:int = 100, dataset_records_per_file: int = 15000) -> None:
     """Train the models with the data stored in the output path.
@@ -28,6 +28,8 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
         the amount of files that should be randomly sampled from the availabe data for training
     dataset_records_per_file: int
         amount of records from each file that is used for training
+    transformer_file_name: str
+        path to a file where a transformer class named Encoder is defined
 
     Returns
     -------
@@ -40,11 +42,17 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
     npy_data_directory = os.path.join(data_directory, "3_data_npy_train")
     npy_data_directory = os.path.join(npy_data_directory, number_of_overlaps)
     models_directory = os.path.join(data_directory, "models")
-    pin_model_directory =os.path.join(models_directory,f"transformer")
+    pin_model_directory =os.path.join(models_directory,f"transformer/{transformer_file_name}")
 
     # Ensure the model directory exists, create it if not
     os.makedirs(pin_model_directory, exist_ok=True)
     os.makedirs(models_directory, exist_ok=True)
+
+    # initialize transformer model
+    sys.path.append('./model_learning_testing/models')
+    transformer = importlib.import_module("transformer_file_name")
+    my_class = getattr(transformer, 'Encoder')
+    model = my_class(10000000)
 
     # Loading Filelist of Training-data
     filelist = os.listdir(npy_data_directory)
@@ -64,7 +72,6 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
 
 
     while True:
-        model = Encoder(1)
         model.to(device)
 
         dataset = LearnerDataset(model_input_size, npy_data_directory, pinwheel_size,
@@ -99,9 +106,7 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
             break
 
     # create new directory for the model_accuracies
-    accuracies_directory = os.path.join(output_directory, "model_accuracies")
-    os.mkdir(accuracies_directory)
-    csv_file = os.path.join(accuracies_directory, "out.csv")
+    csv_file = os.path.join(pin_model_directory, "model_accuracies.csv")
     # Convert the list of accuracies to a DataFrame
     accuracy_df = pd.DataFrame(model_accuracies)
     # Save the DataFrame to an csv file
@@ -111,8 +116,10 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
+    parser.add_argument("transformer_file_name", type=str, help="path to a file containing a transformer model, named 'Encoder'")
     parser.add_argument("-m", "--model_size", type=int, default=200, help="defines the size of the input layer of the model" )
     args = parser.parse_args()
     # adjust the parameters for training if you want to apply some form of control to the training process
-    training(args.output_folder_path, required_test_accuracy_pin=0.5, model_input_size=args.model_size)
+    training(args.output_folder_path, required_test_accuracy_pin=0.5,
+             model_input_size=args.model_size, transformer_file_name=args.transformer_file_name)
 

@@ -5,7 +5,6 @@ import re
 import numpy as np
 import pandas as pd
 import torch
-import tqdm
 from model_learning_testing.dataloading import load_partial_data
 from model_learning_testing.model_testing import ModelTester
 from model_learning_testing.plots import PlotGenerator
@@ -94,7 +93,7 @@ def test_varying_lugs(test_results_directory: str, npy_data_directory: str, plot
     csv_file = os.path.join(test_results_directory, "accuracies_varying_overlaps.csv")
     accuracy_df.to_csv(csv_file, index=False)
 
-def testing(output_directory_path: str, model_input_size: int = 200) -> None:
+def testing(output_directory_path: str, transformer_file_name:str, model_input_size: int = 200) -> None:
     """Test the models in the given folder with the testing data in that folder.
 
     Parameters
@@ -112,16 +111,15 @@ def testing(output_directory_path: str, model_input_size: int = 200) -> None:
     # Define paths to the working directories and data
     output_directory = output_directory_path
     data_directory = os.path.join(output_directory, "Data")
-    test_results_directory = os.path.join(output_directory, "test_results")
+    test_results_directory = os.path.join(output_directory, f"{transformer_file_name}_test_results")
     plots_directory = os.path.join(test_results_directory, "Plots")
-    plots_input_size_directory = os.path.join(plots_directory, f"model_{model_input_size}")
     npy_data_directory = os.path.join(data_directory, "3_data_npy_test")
     wheel = "Wheel1"
     npy_data_directory = os.path.join(npy_data_directory, wheel)
     model_directory = os.path.join(data_directory, "models")
-    transformer_directory = os.path.join(model_directory, "transformer/")
+    transformer_directory = os.path.join(model_directory, f"transformer/{transformer_file_name}")
     # create new directory for the plots generated during testing 
-    os.makedirs(plots_input_size_directory, exist_ok=True)
+    os.makedirs(plots_directory, exist_ok=True)
 
     # if possible use gpu instead of cpu
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -134,7 +132,7 @@ def testing(output_directory_path: str, model_input_size: int = 200) -> None:
     model.myname = myname
     model.to(device)
 
-    plotgenerator = PlotGenerator(plots_input_size_directory)
+    plotgenerator = PlotGenerator(plots_directory)
     modeltester = ModelTester(model, device, model_input_size)
 
     # Prepare the testing data file list
@@ -159,5 +157,6 @@ def testing(output_directory_path: str, model_input_size: int = 200) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
+    parser.add_argument("transformer_file_name", type=str, help="path to a file containing a transformer model, named 'Encoder'")
     args = parser.parse_args()
-    testing(output_directory_path=args.output_folder_path, model_input_size=200)
+    testing(output_directory_path=args.output_folder_path, model_input_size=200, transformer_file_name=args.transformer_file_name)
