@@ -111,13 +111,13 @@ def testing(output_directory_path: str, transformer_file_name:str, model_input_s
     # Define paths to the working directories and data
     output_directory = output_directory_path
     data_directory = os.path.join(output_directory, "Data")
-    test_results_directory = os.path.join(output_directory, f"{transformer_file_name}_test_results")
-    plots_directory = os.path.join(test_results_directory, "Plots")
     npy_data_directory = os.path.join(data_directory, "3_data_npy_test")
     wheel = "Wheel1"
     npy_data_directory = os.path.join(npy_data_directory, wheel)
     model_directory = os.path.join(data_directory, "models")
     transformer_directory = os.path.join(model_directory, f"transformer/{transformer_file_name}")
+    test_results_directory = os.path.join(output_directory, f"test_results_{transformer_file_name}")
+    plots_directory = os.path.join(test_results_directory, "Plots")
     # create new directory for the plots generated during testing 
     os.makedirs(plots_directory, exist_ok=True)
 
