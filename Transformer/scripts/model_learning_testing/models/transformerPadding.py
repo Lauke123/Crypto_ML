@@ -26,9 +26,7 @@ class Encoder(nn.Module):
     def forward(self, x):
         # Emmbedinglayer Batchsize x sequencelength -> batchsize
         out = self.padding(x)
-        print(out)
         out = self.embedding_layer(out)
-        print(out)
         out = self.encoder(out)
         out = torch.transpose(out, 1, 2)
         out = self.linear_layer1(out)
