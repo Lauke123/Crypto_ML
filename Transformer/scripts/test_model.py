@@ -128,7 +128,7 @@ def testing(output_directory_path: str, transformer_file_name:str, model_input_s
     model_lst = [file for file in os.listdir(transformer_directory) if 'best'  in file]
     
     myname = model_lst[0]
-    model = torch.load(transformer_directory+myname)
+    model = torch.load(transformer_directory+ "/" + myname)
     model.myname = myname
     model.to(device)
 

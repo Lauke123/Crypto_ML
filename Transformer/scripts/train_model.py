@@ -49,8 +49,7 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
     os.makedirs(models_directory, exist_ok=True)
 
     # initialize transformer model
-    sys.path.append('./model_learning_testing/models')
-    transformer = importlib.import_module("transformer_file_name")
+    transformer = importlib.import_module("." + transformer_file_name, 'model_learning_testing.models')
     my_class = getattr(transformer, 'Encoder')
     model = my_class(10000000)
 
@@ -98,7 +97,7 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
             })
 
             # Save the final model
-            torch.save(model, pin_model_directory + f'/basic_transformer1.pth')
+            torch.save(model, pin_model_directory + f'/best_transformer.pth')
 
             # Clear the pytorch session and collect garbage to free memory
             torch.cuda.empty_cache()
