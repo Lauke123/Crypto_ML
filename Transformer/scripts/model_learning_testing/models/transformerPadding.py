@@ -17,7 +17,7 @@ class Encoder(nn.Module):
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=1)
         self.embedding_layer = nn.Embedding(num_embeddings=28,
                                              embedding_dim=embedding_dim, padding_idx=26)
-        self.padding = nn.ConstantPad1d((0, 500 - input_size), 26).to(torch.int32)
+        self.padding = nn.ConstantPad1d((0, 500 - input_size), 26)
         self.linear_layer1 = nn.Linear(500, 26)
         self.linear_layer2 = nn.Linear(embedding_dim, 1)
         self.sigmoid = nn.Sigmoid()
@@ -26,7 +26,9 @@ class Encoder(nn.Module):
     def forward(self, x):
         # Emmbedinglayer Batchsize x sequencelength -> batchsize
         out = self.padding(x)
-        out = self.embedding_layer(x)
+        print(out)
+        out = self.embedding_layer(out)
+        print(out)
         out = self.encoder(out)
         out = torch.transpose(out, 1, 2)
         out = self.linear_layer1(out)
