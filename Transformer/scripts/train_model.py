@@ -82,7 +82,7 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
         learner.fit(batch_size, epochs, True, device=device)
 
         # model evaluation
-        test_loss, test_accuracy = learner.evaluate()
+        test_loss, test_accuracy = learner.evaluate(batchsize=batch_size)
 
         print(f"Seq Length {model_input_size}, Wheel 1,  Test Loss: {test_loss}, Test Accuracy: {test_accuracy}")
 
