@@ -23,7 +23,7 @@ class Encoder(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
 
-    def forward(self, x):
+    def forward(self, x, inputsize):
         # Emmbedinglayer Batchsize x sequencelength -> batchsize
 
         out = self.embedding_layer(x)

@@ -20,12 +20,12 @@ def extract_numbers(filename):
     return (0, 0)  # Default return value if no numbers found
 
 def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data_directory: str,
-                    model_lst: list, plotgenerator: PlotGenerator, modeltester: ModelTester, filelist: list):
+                    model_lst: list, plotgenerator: PlotGenerator, modeltester: ModelTester, filelist: list, inputsize:int):
 
     x, y = load_partial_data(103, filelist=filelist,
                             path_data=npy_data_directory, inputsize=model_input_size)
 
-    all_predictions_mixed_overlaps = modeltester.compute_predictions(x, 1000)
+    all_predictions_mixed_overlaps = modeltester.compute_predictions(x, 100, inputsize)
     correct_counts_mixed_overlaps = modeltester.count_correct_predictions(all_predictions_mixed_overlaps, y, x)
 
     # Compute accuracies of the dataset that has mixed overlaps
@@ -46,7 +46,7 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
                                 "average_accuracy_adjusted")
 
 def test_varying_lugs(test_results_directory: str, npy_data_directory: str, plotgenerator: PlotGenerator,
-                      modeltester: ModelTester, filelist: list):
+                      modeltester: ModelTester, filelist: list, inputsize:int):
     accuracy_results = []
     # Evaluation loop for each file pair in the testing dataset
     for file in filelist:
@@ -66,7 +66,7 @@ def test_varying_lugs(test_results_directory: str, npy_data_directory: str, plot
 
         x, y = modeltester.normalize_data(x, y)
 
-        all_predictions = modeltester.compute_predictions(x, len(x))
+        all_predictions = modeltester.compute_predictions(x, len(x), inputsize)
         correct_counts =  modeltester.count_correct_predictions(all_predictions, y, x)
 
         accuracies = [(count / 26) * 100 for count in correct_counts]
@@ -148,10 +148,10 @@ def testing(output_directory_path: str, transformer_file_name:str, model_input_s
 
     # test the model's accuracies for a specific amount of overlaps and non-shared lugs
     #test_varying_lugs(test_results_directory, npy_data_directory, plotgenerator,
-    #                  modeltester, filelist)
+    #                  modeltester, filelist, model_input_size)
     # test the model's accuracies for a random mix of all possible overlaps and non-shared lugs
     test_mixed_lugs(model_input_size, test_results_directory, npy_data_directory,
-                    model_lst, plotgenerator, modeltester, filelist)
+                    model_lst, plotgenerator, modeltester, filelist, model_input_size)
 
 
 if __name__ == "__main__":
@@ -159,4 +159,4 @@ if __name__ == "__main__":
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
     parser.add_argument("transformer_file_name", type=str, help="path to a file containing a transformer model, named 'Encoder'")
     args = parser.parse_args()
-    testing(output_directory_path=args.output_folder_path, model_input_size=200, transformer_file_name=args.transformer_file_name)
+    testing(output_directory_path=args.output_folder_path, model_input_size=52, transformer_file_name=args.transformer_file_name)

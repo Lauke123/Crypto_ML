@@ -35,6 +35,7 @@ class LearnerDataset(Dataset):
         self.label_test = torch.tensor(y_test, device=device)
         self.len_train = self.inputs_train.shape[0]
         self.len_test = self.inputs_test.shape[0]
+        self.inputsize = inputsize
 
         # Bool for using the dataset as testset or trainset
         # So the dataset could be uesed for traing and testing
@@ -60,6 +61,9 @@ class LearnerDataset(Dataset):
     
     def get_wheelsize(self):
         return self.wheelsize
+    
+    def get_inputsize(self):
+        return self.inputsize
 
 
 
@@ -86,7 +90,7 @@ class Learner:
             optimizer = torch.optim.Adam(self.model.parameters(), lr=(self.learningrate * (0.95 ** float(epoch))))
             for _, (inputs, labels) in enumerate(dataloader):
                     # compute predictions and loss from the trainset
-                    prediction = self.model.forward(inputs)
+                    prediction = self.model.forward(inputs, self.dataset.get_inputsize())
                     # Reshape labels to embedingsize
                     #For example: label = 1 -> label = 1,1,1...1,1 (dimensionsize:512)
 
@@ -109,7 +113,7 @@ class Learner:
             dataloader = DataLoader(batch_size=batchsize, dataset=self.dataset, shuffle=False)
             for _, (inputs, labels) in enumerate(dataloader):
                 # compute the predictions from the testset
-                eval_pred = self.model.forward(inputs)
+                eval_pred = self.model.forward(inputs, self.dataset.get_inputsize())
                 # the mean of each prediction embedding (is between 0 and 1) 
                 # describes the prediction for one pin
                 eval_pred = torch.flatten(eval_pred)

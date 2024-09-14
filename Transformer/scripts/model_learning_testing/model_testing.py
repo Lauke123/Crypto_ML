@@ -35,7 +35,7 @@ class ModelTester:
 
         return inputs, lables
 
-    def compute_predictions(self,x, batchsize:int):
+    def compute_predictions(self,x, batchsize:int, inputsize:int):
         """Compute model predictions for a given dataset."""
         all_predictions = []
         num_batches = math.ceil(len(x) / batchsize)
@@ -44,7 +44,8 @@ class ModelTester:
             start = i * batchsize
             end = min((i + 1) * batchsize,len(x))
             model_predictions_batch = self.model.forward(torch.tensor(x[start:end],
-                                                                device=self.device))          
+                                                                device=self.device),
+                                                                inputsize)          
             model_predictions_batch = torch.round(model_predictions_batch).squeeze()
             model_predictions_batch = model_predictions_batch.detach().cpu().numpy()
             all_predictions.extend(model_predictions_batch)
