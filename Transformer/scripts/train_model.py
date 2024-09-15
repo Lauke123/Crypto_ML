@@ -9,9 +9,9 @@ from model_learning_testing.model_learning import Learner, LearnerDataset
 
 
 def training(output_directory_path: str, transformer_file_name:str, number_of_overlaps: str = "1-12",
-             model_input_size: int = 200, epochs: int = 10, batch_size: int = 100,
+             model_input_size: int = 200, wheelsize: int = 26, epochs: int = 10, batch_size: int = 100,
              required_test_accuracy_pin: float = 0.88,
-             dataset_files:int = 100, dataset_records_per_file: int = 15000) -> None:
+             dataset_files:int = 1, dataset_records_per_file: int = 150) -> None:
     """Train the models with the data stored in the output path.
 
     Parameters
@@ -51,7 +51,7 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
     # initialize transformer model
     transformer = importlib.import_module("." + transformer_file_name, 'model_learning_testing.models')
     my_class = getattr(transformer, 'Encoder')
-    model = my_class(model_input_size)
+    model = my_class(model_input_size, output_size=wheelsize)
 
     # Loading Filelist of Training-data
     filelist = os.listdir(npy_data_directory)
@@ -64,7 +64,7 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
         print("Taining is using GPU instead of CPU")
 
     # amount of pins on the first wheel of the hagelin m-209
-    pinwheel_size = 26
+    pinwheel_size = wheelsize
 
     model_accuracies = []
 
@@ -117,8 +117,9 @@ if __name__ == "__main__":
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
     parser.add_argument("transformer_file_name", type=str, help="path to a file containing a transformer model, named 'Encoder'")
     parser.add_argument("-m", "--model_size", type=int, default=200, help="defines the size of the input layer of the model" )
+    parser.add_argument("-w", "--wheel_size", type=int, default=26, help="defines how many pins should be predicted" )
     args = parser.parse_args()
     # adjust the parameters for training if you want to apply some form of control to the training process
     training(args.output_folder_path, required_test_accuracy_pin=0.5,
-             model_input_size=args.model_size, transformer_file_name=args.transformer_file_name)
+             model_input_size=args.model_size, transformer_file_name=args.transformer_file_name, wheelsize= args.wheel_size)
 

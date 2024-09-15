@@ -10,10 +10,11 @@ class ModelTester:
     Testingclass for testing the accuracy of a traiend model.
     The class can test a binary classification model.
     '''
-    def __init__(self, model:Module, device, inputsize):
+    def __init__(self, model:Module, device, inputsize, wheelsize):
         self.model = model
         self.device = device
         self.inputsize = inputsize
+        self.wheelsize = wheelsize
 
     def sample_data(self, X, y, sample_size:int):
         '''Sample a fix number of inputs random from a dataset'''
@@ -54,7 +55,7 @@ class ModelTester:
     def count_correct_predictions(self, all_predictions, y, X):
         '''Compare the predictions with the labels and count the correct ones'''
         correct_counts = []
-        targets = y[:,:26]
+        targets = y[:,:self.wheelsize]
         correct_count = 0
         for i in range(len(X)):
             correct_count = 0

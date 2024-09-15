@@ -28,14 +28,14 @@ class Encoder(nn.Module):
     It transforms the displacement values into embeddings and 
     uses the attention model to find correlations between each input.
     '''
-    def __init__(self, input_size: int, embedding_dim:int = 512) -> None:
+    def __init__(self, input_size: int, embedding_dim:int = 512, output_size:int = 26) -> None:
         super().__init__()
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=embedding_dim, nhead=8, batch_first= True)
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=1)
-        self.embedding_layer = nn.Embedding(num_embeddings=28,
+        self.embedding_layer = nn.Embedding(num_embeddings=27,
                                              embedding_dim=embedding_dim)
         self.positional_enc = PositionalEncoding(d_model=embedding_dim, max_seq_length=input_size)
-        self.linear_layer1 = nn.Linear(200, 26)
+        self.linear_layer1 = nn.Linear(input_size, output_size)
         self.linear_layer2 = nn.Linear(embedding_dim, 1)
         self.sigmoid = nn.Sigmoid()
 
