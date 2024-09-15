@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
+import random
 
 from .dataloading import load_partial_data
 
@@ -90,7 +91,11 @@ class Learner:
             optimizer = torch.optim.Adam(self.model.parameters(), lr=(self.learningrate * (0.95 ** float(epoch))))
             for _, (inputs, labels) in enumerate(dataloader):
                     # compute predictions and loss from the trainset
-                    prediction = self.model.forward(inputs, self.dataset.get_inputsize())
+                    input_length = self.dataset.get_inputsize()
+                    if input_length == 500:
+                        input_length = random.randint(0, self.dataset.get_inputsize())
+                        inputs = inputs[:,:input_length]
+                    prediction = self.model.forward(inputs, input_length)
                     # Reshape labels to embedingsize
                     #For example: label = 1 -> label = 1,1,1...1,1 (dimensionsize:512)
 
