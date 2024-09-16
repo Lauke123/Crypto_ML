@@ -11,7 +11,7 @@ echo "Started at $(date)";
 echo "Running job $SLURM_JOB_NAME using $SLURM_JOB_CPUS_PER_NODE cpus per node with given JID $SLURM_JOB_ID on queue $SLURM_JOB_PARTITION";
 
 # Job to perform
-python Crypto_ML/Transformer/scripts/train_model.py /work/dlclarge1/jehled-CryptoML/ transformerPaddingrandom2
+python Crypto_ML/Transformer/scripts/train_model.py /work/dlclarge1/jehled-CryptoML/ transformerPaddingrandom2 -m 500
 
 # Print some Information about the end-time to STDOUT
 echo "DONE";
