@@ -93,7 +93,7 @@ class Learner:
                     # compute predictions and loss from the trainset
                     input_length = self.dataset.get_inputsize()
                     if input_length == 500:
-                        input_length = random.randint(0, self.dataset.get_inputsize())
+                        input_length = 10 * random.randint(3, self.dataset.get_inputsize()//10)
                         inputs = inputs[:,:input_length]
                     prediction = self.model.forward(inputs, input_length)
                     # Reshape labels to embedingsize
