@@ -49,11 +49,11 @@ class ModelTester:
                 model_predictions_batch = model.forward(torch.tensor(x[start:end],
                                                                     device=self.device)
                                                                     .unsqueeze(1))
+                model_predictions_batch = torch.round(model_predictions_batch)
                 model_predictions_batch = model_predictions_batch.detach().cpu().numpy()
                 model_predictions.extend(model_predictions_batch.flatten())
             all_predictions.append(model_predictions)
-            all_predictions_rounded = torch.round(all_predictions)
-        return np.array(all_predictions_rounded).T, np.array(all_predictions).T  # Transpose so that each row represents a sample
+        return np.array(all_predictions).T  # Transpose so that each row represents a sample
 
     def count_correct_predictions(self, all_predictions, y, X):
         '''Compare the predictions with the labels and count the correct ones'''
