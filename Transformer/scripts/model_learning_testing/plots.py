@@ -12,7 +12,7 @@ class PlotGenerator:
         plt.clf()  # Clear the previous figure
         average_accuracy = np.mean(accuracies)
         plt.title(title)
-        plt.hist(accuracies, bins=53, color='lightgreen',  edgecolor='black', alpha=0.7)
+        plt.hist(accuracies, bins=53, color='mediumseagreen',  edgecolor='black', alpha=0.7)
         plt.axvline(average_accuracy, color='red', linestyle='dashed', linewidth=1)
         plt.text(average_accuracy, plt.ylim()[1]/2, f'Average: {average_accuracy:.2f}%', rotation=90)
 
