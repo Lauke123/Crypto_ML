@@ -6,14 +6,15 @@ class OutputNetwork(nn.Module):
     def __init__(self):
         super().__init__()
         self.pad = nn.ConstantPad2d((0, 0, 0, 20), 0)
-        self.conv_layer = nn.Conv2d(1, 1, (20,512), dilation=(26,1))
-        self.fc_layer1 = nn.Linear(26, 2048)
+        self.conv_layer = nn.Conv2d(1, 1, (20,1), dilation=(26,1))
+        self.fc_layer1 = nn.Linear(512, 1)
         self.fc_layer2 = nn.Linear(2048, 26)
         self.relu = nn.ReLU()
 
     def forward(self, input):
         out = self.pad(input)
         out = self.conv_layer(out.unsqueeze(1))
+        out = self.fc_layer1(out.squeeze())
         return out
 
 class Encoder(nn.Module):
