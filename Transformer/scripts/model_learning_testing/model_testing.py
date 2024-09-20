@@ -3,6 +3,7 @@ import math
 import numpy as np
 import torch
 from torch.nn import Module
+from .model_learning import normalize_and_round
 
 
 class ModelTester:
@@ -40,6 +41,7 @@ class ModelTester:
     def compute_predictions(self,x, batchsize:int, inputsize:int):
         """Compute model predictions for a given dataset."""
         all_predictions = []
+        lug_predictions = []
         num_batches = math.ceil(len(x) / batchsize)
         # To avoid running out of memory, predictions are made in batches
         for i in range(num_batches):
@@ -48,13 +50,20 @@ class ModelTester:
             model_predictions_batch = self.model.forward(torch.tensor(x[start:end],
                                                                 device=self.device),
                                                                 inputsize)
-            model_predictions_batch = model_predictions_batch.squeeze()
+            #model_predictions_batch = model_predictions_batch.squeeze()
+            pin_predictions_batch = model_predictions_batch[:,:self.wheelsize]
+
             if self.lug_training:
-                model_predictions_batch = model_predictions_batch[:,:self.wheelsize]
-            model_predictions_batch = torch.round(model_predictions_batch)
-            model_predictions_batch = model_predictions_batch.detach().cpu().numpy()
-            all_predictions.extend(model_predictions_batch)
-        return np.array(all_predictions)  # Transpose so that each row represents a sample
+                lug_prediction_batch = model_predictions_batch[:, self.wheelsize:]
+                lug_prediction_batch = lug_prediction_batch.squeeze()
+                lug_prediction_batch = normalize_and_round(lug_prediction_batch)
+                lug_prediction_batch= lug_prediction_batch.detach().cpu().numpy()
+                lug_predictions.extend(lug_prediction_batch)
+
+            pin_predictions_batch = torch.round(pin_predictions_batch)
+            pin_predictions_batch = pin_predictions_batch.detach().cpu().numpy()
+            all_predictions.extend(pin_predictions_batch)
+        return np.array(all_predictions), np.array(lug_predictions)  # Transpose so that each row represents a sample
 
     def count_correct_predictions(self, all_predictions, y, X):
         '''Compare the predictions with the labels and count the correct ones'''
@@ -69,3 +78,17 @@ class ModelTester:
             correct_counts.append(correct_count)
         return correct_counts
 
+
+    def test_avg_difference_lugs(self, lug_predictions, y)->list[list]:
+        lug_targets = y[:,self.wheelsize:]
+        print(lug_predictions.shape)
+        print(lug_targets.shape)
+        # calculate the mean of the 7 columns of tensor
+        # Step 1: Compute the absolute difference element-wise
+        abs_diff = np.abs(lug_predictions - lug_targets)
+
+        split_columns = np.hsplit(abs_diff, 7)
+
+        lug_position_values = [column.squeeze().tolist() for column in split_columns]
+        
+        return lug_position_values

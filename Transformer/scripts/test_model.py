@@ -8,6 +8,7 @@ import torch
 from model_learning_testing.dataloading import load_partial_data
 from model_learning_testing.model_testing import ModelTester
 from model_learning_testing.plots import PlotGenerator
+from model_learning_testing.model_learning import normalize_and_round
 
 
 # Function to extract numeric parts from filenames for sorting
@@ -25,8 +26,15 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
     x, y = load_partial_data(103, filelist=filelist,
                             path_data=npy_data_directory, inputsize=model_input_size, lugs=lug_training)
 
-    all_predictions_mixed_overlaps = modeltester.compute_predictions(x, 100, inputsize)
+    all_predictions_mixed_overlaps, lug_predictions = modeltester.compute_predictions(x, 100, inputsize)
+    print(all_predictions_mixed_overlaps.shape, lug_predictions.shape)
     correct_counts_mixed_overlaps = modeltester.count_correct_predictions(all_predictions_mixed_overlaps, y, x)
+
+    print(lug_training)
+    if lug_training:
+        print("lug testing...")
+        lug_distribution = modeltester.test_avg_difference_lugs(lug_predictions, y)
+        plotgenerator.plot_box_whisker_lugs(lug_distribution, "lug_distribution_boxplot")
 
     # Compute accuracies of the dataset that has mixed overlaps
     accuracies_mixed_overlaps = [(count / wheelsize) * 100 for count in correct_counts_mixed_overlaps]
@@ -66,7 +74,7 @@ def test_varying_lugs(test_results_directory: str, npy_data_directory: str, plot
 
         x, y = modeltester.normalize_data(x, y)
 
-        all_predictions = modeltester.compute_predictions(x, len(x), inputsize)
+        all_predictions, lug_predictions = modeltester.compute_predictions(x, len(x), inputsize)
         correct_counts =  modeltester.count_correct_predictions(all_predictions, y, x)
 
         accuracies = [(count / wheelsize) * 100 for count in correct_counts]
@@ -139,7 +147,6 @@ def testing(output_directory_path: str, transformer_file_name:str, model_input_s
     filelist = os.listdir(npy_data_directory)
     # Pairing x and y files
     filelist = [(x,y,z) for x in filelist if 'x_' in x for y in filelist if x.split('_5')[1] == y.split('_5')[1] and "y_5" in y for z in filelist if y.split('_5')[1] == z.split('_5')[1] and "y_lugs" in z]
-    print(filelist)
     # Sorting based on the numeric values extracted from filenames
     filelist.sort(key=lambda x: extract_numbers(x[0]))  # sorting by the first file's numbers
 

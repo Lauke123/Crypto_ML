@@ -20,6 +20,24 @@ class PlotGenerator:
         plt.ylabel("Frequency")
         plt.savefig(self.storage_path + "/" + plot_name)
 
+    def plot_box_whisker_lugs(self, data:list[list], file_name):
+
+        # Create boxplot
+        plt.figure(figsize=(10, 6))  # Set the figure size
+        plt.boxplot(data)
+
+        # Set x-axis labels
+        plt.xticks([1, 2, 3, 4, 5, 6, 7], ["No Wheel", "Wheel1", "Wheel2", "Wheel3", "Wheel4", "Wheel5", "Wheel6"])
+
+        # Add labels and title
+        plt.ylabel("Absolute Difference")
+        plt.title("Prediction of Lug Distribution")
+
+        # Save the plot as an image file (PNG format)
+        plt.savefig(self.storage_path + "/" + file_name)
+
+        # Close the plot to prevent it from being displayed
+        plt.close()
 
 if __name__ == "__main__":
     test_path = os.path.join(os.getcwd(), "..")

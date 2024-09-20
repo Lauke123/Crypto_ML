@@ -42,15 +42,13 @@ class Encoder(nn.Module):
         self.output_pins2 = nn.Linear(138, 131)
         self.output_lugs = nn.Linear(138, 7)
         self.pe = PositionalEncoding(d_model=embedding_dim, max_seq_length=500)
-        self.combine_to_pins = nn.Linear(500 + 131 + 7, 131)
-        self.combine_to_lugs = nn.Linear(500 + 131 + 7, 7)
+        self.combine_to_pins = nn.Linear(131 + 7, 131)
+        self.combine_to_lugs = nn.Linear(131 + 7, 7)
 
     def forward(self, x, inputsize):
         # Emmbedinglayer Batchsize x sequencelength -> batchsize
         padding = nn.ConstantPad1d((0, 500 - inputsize), 26)
         out = padding(x)
-        raw = out
-        raw = raw.unsqueeze(2)
         out = self.embedding_layer(out)
         out = self.pe(out)
         out = self.encoder(out)
@@ -80,7 +78,7 @@ class Encoder(nn.Module):
         out = torch.transpose(out, 1, 2)
 
         # combine the raw inputs (sequence of displacement values) with the current prediction of lugs and pins
-        combined = torch.cat((raw,out,lugs),1)
+        combined = torch.cat((out,lugs),1)
         combined = torch.transpose(combined, 1, 2)
         pins = self.combine_to_pins(combined)
         combined = self.relu(combined)
