@@ -3,13 +3,14 @@ import random
 import tqdm
 
 
-def load_partial_data(count,filelist, path_data, inputsize, records_per_file=None):
+def load_partial_data(count,filelist, path_data, inputsize, records_per_file=None, lugs=False):
     """
     Load a specific number of records from a set number of files.
 
     Parameters:
     - count: The number of files to randomly select and load data from.
     - records_per_file: The number of records to load from each file.
+    - lugs: if data should be loaded with the information of lug positions
 
     Returns:
     - Tuple of np.arrays: The loaded x and y data.
@@ -26,10 +27,11 @@ def load_partial_data(count,filelist, path_data, inputsize, records_per_file=Non
         if records_per_file == None:
             x_tmp = np.load(path_data + '/' + file[0])
             y_tmp = np.load(path_data + '/' + file[1])
+            y_lugs_tmp = np.load(path_data + '/' + file[2])
         else:
             x_tmp = np.load(path_data + "/" + file[0])[:records_per_file]
             y_tmp = np.load(path_data  + "/" + file[1])[:records_per_file]
-
+            y_lugs_tmp = np.load(path_data + '/' + file[2])[:records_per_file]
         # Ensure the input size matches expected dimensions, adjust if necessary
         if inputsize > x_tmp.shape[1]:
             raise UserWarning("Input size too large for loaded data.")
@@ -38,6 +40,9 @@ def load_partial_data(count,filelist, path_data, inputsize, records_per_file=Non
 
 
         x_lst.append(x_tmp)
+        # add lug position values to the target for training to predict lug settings in addition to pin settings
+        if lugs:
+            y_tmp = np.concatenate((y_tmp, y_lugs_tmp), axis=1)
         y_lst.append(y_tmp)
 
     # Concatenate all loaded data into a single array for both x and y

@@ -10,11 +10,12 @@ class ModelTester:
     Testingclass for testing the accuracy of a traiend model.
     The class can test a binary classification model.
     '''
-    def __init__(self, model:Module, device, inputsize, wheelsize):
+    def __init__(self, model:Module, device, inputsize, wheelsize, lug_training:bool = False):
         self.model = model
         self.device = device
         self.inputsize = inputsize
         self.wheelsize = wheelsize
+        self.lug_training = lug_training
 
     def sample_data(self, X, y, sample_size:int):
         '''Sample a fix number of inputs random from a dataset'''
@@ -46,8 +47,11 @@ class ModelTester:
             end = min((i + 1) * batchsize,len(x))
             model_predictions_batch = self.model.forward(torch.tensor(x[start:end],
                                                                 device=self.device),
-                                                                inputsize)          
-            model_predictions_batch = torch.round(model_predictions_batch).squeeze()
+                                                                inputsize)
+            model_predictions_batch = model_predictions_batch.squeeze()
+            if self.lug_training:
+                model_predictions_batch = model_predictions_batch[:,:self.wheelsize]
+            model_predictions_batch = torch.round(model_predictions_batch)
             model_predictions_batch = model_predictions_batch.detach().cpu().numpy()
             all_predictions.extend(model_predictions_batch)
         return np.array(all_predictions)  # Transpose so that each row represents a sample

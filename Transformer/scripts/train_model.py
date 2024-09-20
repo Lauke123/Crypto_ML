@@ -11,7 +11,7 @@ from model_learning_testing.model_learning import Learner, LearnerDataset
 def training(output_directory_path: str, transformer_file_name:str, number_of_overlaps: str = "1-12",
              model_input_size: int = 200, wheelsize: int = 26, epochs: int = 10, batch_size: int = 100,
              required_test_accuracy_pin: float = 0.88,
-             dataset_files:int = 100, dataset_records_per_file: int = 15000) -> None:
+             dataset_files:int = 100, dataset_records_per_file: int = 15000, lug_training:bool = False) -> None:
     """Train the models with the data stored in the output path.
 
     Parameters
@@ -55,7 +55,7 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
 
     # Loading Filelist of Training-data
     filelist = os.listdir(npy_data_directory)
-    filelist = [(x,y) for x in filelist if '_x_' in x for y in filelist if x.split('_')[0] == y.split('_')[0] and "_y_" in y]
+    filelist = [(x,y,z) for x in filelist if '_x_' in x for y in filelist if x.split('_')[0] == y.split('_')[0] and "_y_ALL_" in y for z in filelist if y.split('_')[0] == z.split('_')[0] and "_y_lugs" in z]
     filelist.sort()
 
     # if possible use gpu instead of cpu
@@ -75,7 +75,7 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
 
         dataset = LearnerDataset(model_input_size, npy_data_directory, pinwheel_size,
                                 filelist, device, number_of_files=dataset_files,
-                                number_of_records_per_file=dataset_records_per_file)
+                                number_of_records_per_file=dataset_records_per_file, lug_training=lug_training)
         learner = Learner(model, dataset, learningrate=0.001)
 
         # model training
@@ -115,11 +115,12 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("output_folder_path", type=str, help="path to the folder the data folder was created in during the create_dataset.py")
-    parser.add_argument("transformer_file_name", type=str, help="path to a file containing a transformer model, named 'Encoder'")
+    parser.add_argument("transformer_file_name", type=str, help="name of file containing a transformer model, named 'Encoder'")
     parser.add_argument("-m", "--model_size", type=int, default=200, help="defines the size of the input layer of the model" )
     parser.add_argument("-w", "--wheel_size", type=int, default=26, help="defines how many pins should be predicted" )
+    parser.add_argument("-l", "--lug_training", type=bool, default=False, help="enables learning the lugs settings aswell, this increases the target data size by 7" )
     args = parser.parse_args()
     # adjust the parameters for training if you want to apply some form of control to the training process
     training(args.output_folder_path, required_test_accuracy_pin=0.5,
-             model_input_size=args.model_size, transformer_file_name=args.transformer_file_name, wheelsize= args.wheel_size)
+             model_input_size=args.model_size, transformer_file_name=args.transformer_file_name, wheelsize= args.wheel_size, lug_training=args.lug_training)
 

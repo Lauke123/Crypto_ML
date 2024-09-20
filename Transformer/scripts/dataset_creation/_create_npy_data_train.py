@@ -5,6 +5,18 @@ import numpy as np
 import json
 import multiprocessing
 
+from ._1_keygen_json import inflate_lugs
+
+
+def calculate_lug_positions(inflated_lugs):
+    positions = dict.fromkeys([0, 1, 2, 3, 4, 5, 6], 0)
+    for bar in inflated_lugs:
+        lug_position =  [int(pos) for pos in bar.split('-')]
+        positions[lug_position[0]] += 1
+        positions[lug_position[1]] += 1
+    keys = positions.keys()
+    lug_positions =  [positions[key] for key in sorted(keys)]
+    return lug_positions
 
 
 def load_data(data) -> None:
@@ -26,6 +38,7 @@ def load_data(data) -> None:
 
     x_temp = []
     y_temp = []
+    y_temp_lugs = []
 
     # Process each sequence in the data
     for i in tqdm(range(len(data))):
@@ -35,11 +48,20 @@ def load_data(data) -> None:
         for j in range(6):
             new_wheel_data += [1 if a in data[i][4][j] else 0 for a in wheels[j]]
         y_temp.append(new_wheel_data)
+        
+        # add the number of lugs to the data that are on either pos 0,1,2,3,4,5,6
+        lug_values = []
+        lugs = data[i][5]
+        inflated_lugs = inflate_lugs(lugs)
+        lug_values = calculate_lug_positions(inflated_lugs)
+        y_temp_lugs.append(lug_values)
     
     # Convert the lists to NumPy arrays for use in machine learning models
     x = np.array(x_temp, dtype='ubyte')
 
     y = np.array(y_temp, dtype='ubyte')
+
+    y_lugs = np.array(y_temp_lugs, dtype='ubyte')
     
     # Extract file name and overlaps information for saving
     file= file.split('/')[-1]
@@ -49,6 +71,7 @@ def load_data(data) -> None:
      # Save the processed data as NumPy arrays
     np.save(f"{npy_data_path  + '/'}{file}_x_{length}_{number_of_overlaps}_.npy", x)
     np.save(f"{npy_data_path  + '/'}{file}_y_ALL_{number_of_overlaps}_.npy", y)
+    np.save(f"{npy_data_path  + '/'}{file}_y_lugs_{number_of_overlaps}_.npy", y_lugs)
 
 
 
@@ -94,3 +117,5 @@ def create_npy_data_train(cpu_cores: int, output_path: str) -> None:
         for _ in pool.imap(load_data, filelist):
             pass
 
+if __name__ == "__main__":
+    create_npy_data_train(os.cpu_count(), "c:/Users/Lukas/Desktop/Bachelor Projekt Cryptoanalysis with ML/code")

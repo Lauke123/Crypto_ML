@@ -5,6 +5,19 @@ import re
 
 import numpy as np
 
+from ._1_keygen_json import inflate_lugs
+
+
+def calculate_lug_positions(inflated_lugs):
+    positions = dict.fromkeys([0, 1, 2, 3, 4, 5, 6], 0)
+    for bar in inflated_lugs:
+        lug_position =  [int(pos) for pos in bar.split('-')]
+        positions[lug_position[0]] += 1
+        positions[lug_position[1]] += 1
+    keys = positions.keys()
+    lug_positions =  [positions[key] for key in sorted(keys)]
+    return lug_positions
+
 
 def load_data(data):
     length=500
@@ -22,6 +35,7 @@ def load_data(data):
 
     x_temp = []
     y_temp = []
+    y_temp_lugs = []
 
     # Process each item in the data list
     for i in range(len(data)):
@@ -32,9 +46,17 @@ def load_data(data):
             new_wheel_data += [1 if a in data[i][4][j] else 0 for a in wheels[j]]
         y_temp.append(new_wheel_data)
 
+        # add the number of lugs to the data that are on either pos 0,1,2,3,4,5,6
+        lug_values = []
+        lugs = data[i][5]
+        inflated_lugs = inflate_lugs(lugs)
+        lug_values = calculate_lug_positions(inflated_lugs)
+        y_temp_lugs.append(lug_values)
+
     # Convert the lists to numpy arrays with type 'ubyte' for efficient storage
     x = np.array(x_temp, dtype='ubyte')
     y = np.array(y_temp, dtype='ubyte')
+    y_lugs = np.array(y_temp_lugs, dtype='ubyte')
 
     # Extract the non-shared lug count and overlap count from the filename using regex
     match = re.search(r"NS=(\d+)_OV=(\d+)_cipher.json", file)
@@ -46,6 +68,7 @@ def load_data(data):
     np.save(f"{npy_testing_data_directory  + '/'}x_{length}-non-shared-lugs{n}-overlaps{o}.npy", x)
     print (f"{npy_testing_data_directory + '/'}x_{length}-non-shared-lugs{n}-overlaps{o}.npy")
     np.save(f"{npy_testing_data_directory  + '/'}y_{length}-non-shared-lugs{n}-overlaps{o}.npy", y)
+    np.save(f"{npy_testing_data_directory  + '/'}y_lugs_{length}-non-shared-lugs{n}-overlaps{o}.npy", y_lugs)
 
 def create_npy_data_test(cpu_cores: int, output_path: str) -> None:
     """Create the data that is used during the training process.
@@ -81,3 +104,6 @@ def create_npy_data_test(cpu_cores: int, output_path: str) -> None:
     with multiprocessing.Pool(cpu_cores) as pool:
         for _ in pool.imap(load_data, filelist):
             pass
+
+if __name__ == "__main__":
+    create_npy_data_test(os.cpu_count(), "c:/Users/Lukas/Desktop/Bachelor Projekt Cryptoanalysis with ML/code")
