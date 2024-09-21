@@ -20,18 +20,23 @@ class PlotGenerator:
         plt.ylabel("Frequency")
         plt.savefig(self.storage_path + "/" + plot_name)
 
-    def plot_box_whisker_lugs(self, data:list[list], file_name):
-
+    def plot_box_whisker_lugs(self, data: list[list], file_name: str):
         # Create boxplot
         plt.figure(figsize=(10, 6))  # Set the figure size
-        plt.boxplot(data)
+        boxplot = plt.boxplot(data, patch_artist=True)
 
         # Set x-axis labels
-        plt.xticks([1, 2, 3, 4, 5, 6, 7], ["No Wheel", "Wheel1", "Wheel2", "Wheel3", "Wheel4", "Wheel5", "Wheel6"])
+        plt.xticks([1, 2, 3, 4, 5, 6, 7], 
+                   ["No Wheel", "Wheel1", "Wheel2", "Wheel3", "Wheel4", "Wheel5", "Wheel6"])
 
         # Add labels and title
         plt.ylabel("Absolute Difference")
         plt.title("Prediction of Lug Distribution")
+
+        # Calculate medians and annotate them on the plot
+        medians = [item.get_ydata()[0] for item in boxplot['medians']]
+        for i, median in enumerate(medians, start=1):
+            plt.text(i, median, f'{median:.2f}', ha='center', va='bottom', fontsize=10, color='black')
 
         # Save the plot as an image file (PNG format)
         plt.savefig(self.storage_path + "/" + file_name)
