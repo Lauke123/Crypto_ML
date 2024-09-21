@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -p mlhiwidlc_gpu-rtx2080 # partition (queue)
+#SBATCH -p testdlc_gpu-rtx2080 # partition (queue)
 #SBATCH -c 8 # number of cores
 #SBATCH -o /work/dlclarge1/jehled-CryptoML/log/%x.%N.%j.out # STDOUT  (the folder log has to be created prior to running or this won't work)
 #SBATCH -e /work/dlclarge1/jehled-CryptoML/log/%x.%N.%j.err # STDERR  (the folder log has to be created prior to running or this won't work)
@@ -11,7 +11,7 @@ echo "Started at $(date)";
 echo "Running job $SLURM_JOB_NAME using $SLURM_JOB_CPUS_PER_NODE cpus per node with given JID $SLURM_JOB_ID on queue $SLURM_JOB_PARTITION";
 
 # Job to perform
-python Crypto_ML/Transformer/scripts/train_model.py /work/dlclarge1/jehled-CryptoML/ transformerPaddingrandomconv -m 500 
+python Crypto_ML/Transformer/scripts/test_model.py /work/dlclarge1/jehled-CryptoML/ transformerPaddingrandom131layer4 -m 104 -w 131 
 
 # Print some Information about the end-time to STDOUT
 echo "DONE";
