@@ -79,16 +79,20 @@ class ModelTester:
         return correct_counts
 
 
-    def test_avg_difference_lugs(self, lug_predictions, y)->list[list]:
+    def test_avg_difference_lugs(self, lug_predictions, y):
         lug_targets = y[:,self.wheelsize:]
         print(lug_predictions.shape)
         print(lug_targets.shape)
-        # calculate the mean of the 7 columns of tensor
-        # Step 1: Compute the absolute difference element-wise
+        
+        # calculate the mean of the 22 columns of tensor
         abs_diff = np.abs(lug_predictions - lug_targets)
-
         split_columns = np.hsplit(abs_diff, 22)
-
         lug_position_values = [column.squeeze().tolist() for column in split_columns]
         
-        return lug_position_values
+        # calculate the accuracy of lug pairs
+        min_values = np.minimum(lug_predictions, lug_targets)
+        row_sums = np.sum(min_values, axis=1)
+        lug_pair_accuracies = row_sums / 27 * 100
+        lug_pair_accuracies = lug_pair_accuracies.squeeze().tolist()
+
+        return lug_position_values, lug_pair_accuracies

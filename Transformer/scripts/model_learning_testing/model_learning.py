@@ -203,8 +203,6 @@ class Learner:
                     prediction_lugs = normalize_and_round(prediction_lugs)
                     print(prediction_lugs[0])
                     print(labels_lugs[0])
-                    prediction_lugs = torch.flatten(prediction_lugs)
-                    labels_lugs = torch.flatten(labels_lugs)
                 
                 prediction_pins = torch.flatten(prediction_pins)
                 labels_pins = torch.flatten(labels_pins)
@@ -216,21 +214,12 @@ class Learner:
                 for i in range(len(labels_pins)):
                     if labels_pins[i] == prediction_pins[i]:
                         correct_predictions +=1
-                # count correct predictions of the lugs
+                # count correct correct predictions of the lug pairs and print the mean accuracy
                 if self.dataset.lug_training:
-                    abs_difference = torch.abs(prediction_lugs - labels_lugs)
-                    #TODO write better evaluation of accuracy of lugs
-                    average_difference = torch.mean(abs_difference).item()
-                    print(average_difference)
-
-                    # Perform element-wise comparison (this returns a boolean tensor)
-                    identical_elements = prediction_lugs == labels_lugs
-                    # Count how many elements are identical (True) and calculate accuracy
-                    num_identical = identical_elements.sum().item()  # Convert tensor to Python scalar
-                    total_elements = prediction_lugs.numel()  # Total number of elements in prediction_lugs (and labels_lugs)
-                    # Calculate accuracy as the proportion of identical elements
-                    accuracy = num_identical / total_elements
-                    print(accuracy)
+                    min_values = torch.minimum(prediction_lugs, labels_lugs)
+                    row_sums = min_values.sum(dim=1)
+                    final_result = row_sums / 27
+                    print(final_result.mean().item())
 
         accuracy = correct_predictions / len_testset
         # Return back to default

@@ -33,8 +33,9 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
     print(lug_training)
     if lug_training:
         print("lug testing...")
-        lug_distribution = modeltester.test_avg_difference_lugs(lug_predictions, y)
+        lug_distribution, lug_pair_accuracies = modeltester.test_avg_difference_lugs(lug_predictions, y)
         plotgenerator.plot_box_whisker_lugs(lug_distribution, "lug_distribution_boxplot")
+        plotgenerator.plot_lug_pair_accuracies(lug_pair_accuracies, "lug_pair_accuracies")
 
     # Compute accuracies of the dataset that has mixed overlaps
     accuracies_mixed_overlaps = [(count / wheelsize) * 100 for count in correct_counts_mixed_overlaps]
