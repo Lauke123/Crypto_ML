@@ -4,19 +4,31 @@ from tqdm import tqdm
 import numpy as np
 import json
 import multiprocessing
+from collections import defaultdict
+from itertools import combinations
+from _1_keygen_json import inflate_lugs
 
-from ._1_keygen_json import inflate_lugs
 
-
-def calculate_lug_positions(inflated_lugs):
-    positions = dict.fromkeys([0, 1, 2, 3, 4, 5, 6], 0)
-    for bar in inflated_lugs:
-        lug_position =  [int(pos) for pos in bar.split('-')]
-        positions[lug_position[0]] += 1
-        positions[lug_position[1]] += 1
-    keys = positions.keys()
-    lug_positions =  [positions[key] for key in sorted(keys)]
-    return lug_positions
+def count_lug_pairs(input_list):
+    pair_dict = defaultdict(int)
+    
+    # Count existing combinations from input_list
+    for pair in input_list:
+        x, y = pair.split('-')
+        sorted_pair = tuple(sorted([x, y]))
+        pair_dict[sorted_pair] += 1
+    
+    # Generate all valid combinations (0-0 allowed, but no other x-x where x != 0)
+    valid_pairs = list(combinations(map(str, range(1, 7)), 2)) + [('0', '0')] + [('0', str(i)) for i in range(1, 7)]
+    
+    # Create the final dictionary and set counts (0 for those not found in the input list)
+    full_pair_dict = {pair: pair_dict.get(pair, 0) for pair in valid_pairs}
+    
+    # Convert to a sorted list of tuples
+    sorted_pair_list = sorted(full_pair_dict.items())
+    value_pair_list = [pair[1] for pair in sorted_pair_list]
+    
+    return value_pair_list
 
 
 def load_data(data) -> None:
@@ -53,7 +65,7 @@ def load_data(data) -> None:
         lug_values = []
         lugs = data[i][5]
         inflated_lugs = inflate_lugs(lugs)
-        lug_values = calculate_lug_positions(inflated_lugs)
+        lug_values = count_lug_pairs(inflated_lugs)
         y_temp_lugs.append(lug_values)
     
     # Convert the lists to NumPy arrays for use in machine learning models

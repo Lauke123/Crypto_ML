@@ -4,6 +4,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 import random
+import numpy as np
 
 from .dataloading import load_partial_data
 
@@ -34,8 +35,8 @@ class CustomLoss(nn.Module):
         
         return total_loss
 
-# normalize the predicted amount of lugs on each bar so the the total sum is 54
-def normalize_and_round(tensor, target_sum=54):
+# normalize the predicted amount of lug pairs so the the total sum is 27
+def normalize_and_round(tensor, target_sum=27):
     # Get the current sum of each row
     current_sum = tensor.sum(dim=1, keepdim=True)
     
@@ -48,7 +49,7 @@ def normalize_and_round(tensor, target_sum=54):
     # Step 1: Floor the values to get integer parts
     int_tensor = torch.floor(normalized_tensor)
     
-    # Step 2: Calculate the difference for each row (how much is needed to reach 54)
+    # Step 2: Calculate the difference for each row (how much is needed to reach 27)
     diff = (target_sum - int_tensor.sum(dim=1)).int()
     
     # Step 3: Get the fractional parts of the normalized tensor
@@ -57,7 +58,7 @@ def normalize_and_round(tensor, target_sum=54):
     # Step 4: Sort indices by fractional parts in descending order for each row
     _, indices = torch.sort(fractional_part, descending=True, dim=1)
     
-    # Step 5: Add 1 to the largest fractional values for each row until the sum equals 54
+    # Step 5: Add 1 to the largest fractional values for each row until the sum equals 27
     for i in range(tensor.size(0)):  # Loop over each row
         for j in range(diff[i].item()):  # Add 1 to the top `diff[i]` indices in each row
             int_tensor[i, indices[i, j]] += 1
@@ -82,12 +83,13 @@ class LearnerDataset(Dataset):
 
         x, y = load_partial_data(count=number_of_files,records_per_file=number_of_records_per_file,
                                  filelist=filelist, path_data=data_path, inputsize=inputsize, lugs=lug_training)
+        print(y[1])
         # Reshape data lables to one wheel
-        target_length = wheelsize
+        targets = y[:, :wheelsize]
         if lug_training:
-            target_length += 7
-        targets = y[:, :target_length]
-
+            lug_pairs = y[:, -22:]  # Get the last 22 elements
+            targets = np.concatenate((targets, lug_pairs), axis=1)
+        print(targets[1])
         X_train, X_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)
 
 
@@ -140,7 +142,7 @@ class Learner:
                  learningrate: float = 0.001):
         self.model = model
         self.criterion = nn.BCELoss()
-        self.criterion2 = CustomLoss()
+        self.criterion2 = nn.MSELoss()
         self.learningrate = learningrate
         self.dataset = dataset
 
@@ -199,6 +201,8 @@ class Learner:
                     labels_lugs = labels[:, self.dataset.wheelsize:]
                     loss += self.criterion2(prediction_lugs, labels_lugs)
                     prediction_lugs = normalize_and_round(prediction_lugs)
+                    print(prediction_lugs[0])
+                    print(labels_lugs[0])
                     prediction_lugs = torch.flatten(prediction_lugs)
                     labels_lugs = torch.flatten(labels_lugs)
                 
@@ -218,6 +222,16 @@ class Learner:
                     #TODO write better evaluation of accuracy of lugs
                     average_difference = torch.mean(abs_difference).item()
                     print(average_difference)
+
+                    # Perform element-wise comparison (this returns a boolean tensor)
+                    identical_elements = prediction_lugs == labels_lugs
+                    # Count how many elements are identical (True) and calculate accuracy
+                    num_identical = identical_elements.sum().item()  # Convert tensor to Python scalar
+                    total_elements = prediction_lugs.numel()  # Total number of elements in prediction_lugs (and labels_lugs)
+                    # Calculate accuracy as the proportion of identical elements
+                    accuracy = num_identical / total_elements
+                    print(accuracy)
+
         accuracy = correct_predictions / len_testset
         # Return back to default
         self.dataset.set_to_trainset()

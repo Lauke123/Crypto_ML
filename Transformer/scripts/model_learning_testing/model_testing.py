@@ -87,7 +87,7 @@ class ModelTester:
         # Step 1: Compute the absolute difference element-wise
         abs_diff = np.abs(lug_predictions - lug_targets)
 
-        split_columns = np.hsplit(abs_diff, 7)
+        split_columns = np.hsplit(abs_diff, 22)
 
         lug_position_values = [column.squeeze().tolist() for column in split_columns]
         

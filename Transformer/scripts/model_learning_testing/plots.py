@@ -26,8 +26,7 @@ class PlotGenerator:
         boxplot = plt.boxplot(data, patch_artist=True)
 
         # Set x-axis labels
-        plt.xticks([1, 2, 3, 4, 5, 6, 7], 
-                   ["No Wheel", "Wheel1", "Wheel2", "Wheel3", "Wheel4", "Wheel5", "Wheel6"])
+        #plt.xticks([1, 2, 3, 4, 5, 6, 7], ["No Wheel", "Wheel1", "Wheel2", "Wheel3", "Wheel4", "Wheel5", "Wheel6"])
 
         # Add labels and title
         plt.ylabel("Absolute Difference")
