@@ -164,7 +164,7 @@ class Learner:
                     # Reshape labels to embedingsize
                     #For example: label = 1 -> label = 1,1,1...1,1 (dimensionsize:512)
 
-                    prediction = torch.squeeze(prediction)
+                    prediction = torch.squeeze(prediction, dim=2)
                     prediction_pins = prediction[:, 0:self.dataset.wheelsize]
                     labels_pins = labels[:, 0:self.dataset.wheelsize]
                     loss = self.criterion(prediction_pins, labels_pins)
@@ -190,7 +190,7 @@ class Learner:
             for _, (inputs, labels) in enumerate(dataloader):
                 # compute the predictions from the testset
                 eval_pred = self.model.forward(inputs, self.dataset.get_inputsize())
-                eval_pred = torch.squeeze(eval_pred)
+                eval_pred = torch.squeeze(eval_pred, dim=2)
                 # split prediction and labels to pins, lugs
                 prediction_pins = eval_pred[:, 0:self.dataset.wheelsize]
                 labels_pins = labels[:, 0:self.dataset.wheelsize]

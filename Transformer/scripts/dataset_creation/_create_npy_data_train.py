@@ -6,7 +6,7 @@ import json
 import multiprocessing
 from collections import defaultdict
 from itertools import combinations
-from _1_keygen_json import inflate_lugs
+from ._1_keygen_json import inflate_lugs
 
 
 def count_lug_pairs(input_list):

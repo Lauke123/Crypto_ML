@@ -1,5 +1,5 @@
 import csv
-from scipy.stats import mannwhitneyu, ttest_ind
+from scipy.stats import mannwhitneyu, ttest_ind, chi2_contingency
 import os 
 # test if there is a significant difference between the distribution of accuracies of
 # tensorflow and pytorch implementation

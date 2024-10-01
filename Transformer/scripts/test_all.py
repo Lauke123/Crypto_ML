@@ -23,7 +23,7 @@ def extract_numbers(filename):
 def test_mixed_lugs(model_input_size: int, npy_data_directory: str,
                      modeltester: ModelTester, filelist: list, inputsize:int, wheelsize, lug_training:bool = False):
 
-    x, y = load_partial_data(10, filelist=filelist,
+    x, y = load_partial_data(100, filelist=filelist,
                             path_data=npy_data_directory, inputsize=model_input_size, lugs=lug_training)
 
     all_predictions_mixed_overlaps, lug_predictions = modeltester.compute_predictions(x, 100, inputsize)
