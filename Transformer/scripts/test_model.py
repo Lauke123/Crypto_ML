@@ -26,7 +26,6 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
                             path_data=npy_data_directory, inputsize=model_input_size, lugs=lug_training)
 
     all_predictions_mixed_overlaps, lug_predictions = modeltester.compute_predictions(x, 100, inputsize)
-    print(all_predictions_mixed_overlaps.shape, lug_predictions.shape)
     correct_counts_mixed_overlaps = modeltester.count_correct_predictions(all_predictions_mixed_overlaps, y, x)
 
     print(lug_training)
@@ -52,8 +51,10 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
                                 f"Accuracy distribution for n={model_input_size}",
                                 "average_accuracy_adjusted")
 
+# not used in the testing but can be added if more specific testing for different lug overlaps is needed.
 def test_varying_lugs(test_results_directory: str, npy_data_directory: str, plotgenerator: PlotGenerator,
                       modeltester: ModelTester, filelist: list, inputsize:int, wheelsize: int):
+    """Test accuracies for specific amount of lug overlaps."""
     accuracy_results = []
     # Evaluation loop for each file pair in the testing dataset
     for file in filelist:

@@ -25,16 +25,13 @@ def test_mixed_lugs(model_input_size: int, npy_data_directory: str,
                             path_data=npy_data_directory, inputsize=model_input_size, lugs=lug_training)
 
     all_predictions_mixed_overlaps, lug_predictions = modeltester.compute_predictions(x, 100, inputsize)
-    print(all_predictions_mixed_overlaps.shape, lug_predictions.shape)
+
     correct_counts_mixed_overlaps = modeltester.count_correct_predictions(all_predictions_mixed_overlaps, y, x)
 
-    print(lug_training)
     mean_lug_pair = 0
     if lug_training:
-        print("lug testing...")
         lug_pair_accuracies = modeltester.test_avg_difference_lugs(lug_predictions, y)
         mean_lug_pair = np.mean(lug_pair_accuracies)
-        print(mean_lug_pair)
 
     # Compute accuracies of the dataset that has mixed overlaps
     accuracies_mixed_overlaps = [(count / wheelsize) * 100 for count in correct_counts_mixed_overlaps]

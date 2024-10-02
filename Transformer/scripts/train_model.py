@@ -85,7 +85,7 @@ def training(output_directory_path: str, transformer_file_name:str, number_of_ov
         learner = Learner(model, dataset, learningrate=0.001)
 
         # model training
-        learner.fit(batch_size, epochs, True, device=device)
+        learner.fit(batch_size, epochs, shuffle=True)
 
         # model evaluation
         test_loss, test_accuracy = learner.evaluate(batchsize=batch_size)
@@ -124,9 +124,11 @@ if __name__ == "__main__":
     parser.add_argument("transformer_file_name", type=str, help="name of file containing a transformer model, named 'Encoder'")
     parser.add_argument("-m", "--model_size", type=int, default=200, help="defines the size of the input layer of the model" )
     parser.add_argument("-w", "--wheel_size", type=int, default=26, help="defines how many pins should be predicted" )
+    parser.add_argument("-r", "--records_per_file", type=int, default=15000, help="defines number of records in each file used for training" )
     parser.add_argument("-l", "--lug_training", type=bool, default=False, help="enables learning the lugs settings aswell, this increases the target data size by 7" )
     args = parser.parse_args()
     # adjust the parameters for training if you want to apply some form of control to the training process
     training(args.output_folder_path, required_test_accuracy_pin=0.5,
-             model_input_size=args.model_size, transformer_file_name=args.transformer_file_name, wheelsize= args.wheel_size, lug_training=args.lug_training)
+             model_input_size=args.model_size, transformer_file_name=args.transformer_file_name, 
+             wheelsize= args.wheel_size, lug_training=args.lug_training, dataset_records_per_file=args.records_per_file)
 

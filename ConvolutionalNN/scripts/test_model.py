@@ -34,7 +34,7 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
 
     # save accuracies to csv file
     accuracy_df = pd.DataFrame(accuracies_mixed_overlaps)
-    accuracy_df.to_csv(f"prediction_accuracies_{model_input_size}.csv", index=False)
+    accuracy_df.to_csv(f"{test_results_directory}/prediction_accuracies_{model_input_size}.csv", index=False)
 
     # Calculate mean and median of accuracies
     mean_accuracy_mixed_overlaps = np.mean(accuracies_mixed_overlaps)

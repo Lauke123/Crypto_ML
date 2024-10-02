@@ -51,13 +51,11 @@ class LearnerDataset(Dataset):
 
         x, y = load_partial_data(count=number_of_files,records_per_file=number_of_records_per_file,
                                  filelist=filelist, path_data=data_path, inputsize=inputsize, lugs=lug_training)
-        print(y[1])
         # Reshape data lables to one wheel
         targets = y[:, :wheelsize]
         if lug_training:
             lug_pairs = y[:, -22:]  # Get the last 22 elements
             targets = np.concatenate((targets, lug_pairs), axis=1)
-        print(targets[1])
         X_train, X_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)
 
 
@@ -148,6 +146,7 @@ class Learner:
 
     def evaluate(self, batchsize=1000):
         correct_predictions = 0
+        lug_accuracies = []
         # Use the testdata of dataset
         self.dataset.set_to_testset()
         len_testset = self.dataset.__len__() * self.dataset.get_wheelsize()
@@ -182,7 +181,10 @@ class Learner:
                     min_values = torch.minimum(prediction_lugs, labels_lugs)
                     row_sums = min_values.sum(dim=1)
                     final_result = row_sums / 27
-                    print(final_result.mean().item())
+                    lug_accuracies.append(final_result.mean().item())
+
+            if self.dataset.lug_training:
+                print(f"avg_lug_prediction_accuracy: {sum(lug_accuracies)/len(lug_accuracies)}")
 
         accuracy = correct_predictions / len_testset
         # Return back to default
