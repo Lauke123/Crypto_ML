@@ -55,7 +55,7 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
 
     # Loading Filelist of Training-data
     filelist = os.listdir(npy_data_directory)
-    filelist = [(x,y) for x in filelist if '_x_' in x for y in filelist if x.split('_')[0] == y.split('_')[0] and "_y_" in y]
+    filelist = [(x,y,z) for x in filelist if '_x_' in x for y in filelist if x.split('_')[0] == y.split('_')[0] and "_y_ALL_" in y for z in filelist if y.split('_')[0] == z.split('_')[0] and "_y_lugs" in z]
     filelist.sort()
 
     # if possible use gpu instead of cpu

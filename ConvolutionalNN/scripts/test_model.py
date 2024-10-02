@@ -22,7 +22,7 @@ def extract_numbers(filename):
 
 def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data_directory: str,
                     model_lst: list, plotgenerator: PlotGenerator, modeltester: ModelTester, filelist: list):
-
+    """Test model on mixed amount of lug overlaps and non-shared lugs."""
     x, y = load_partial_data(103, filelist=filelist,
                             path_data=npy_data_directory, inputsize=model_input_size)
 
@@ -56,6 +56,7 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
 
 def test_varying_lugs(test_results_directory: str, npy_data_directory: str, plotgenerator: PlotGenerator,
                       modeltester: ModelTester, filelist: list):
+    """Test model on different varying of lug overlaps and non-shared lugs."""
     accuracy_results = []
     # Evaluation loop for each file pair in the testing dataset
     for file in filelist:
@@ -147,11 +148,7 @@ def testing(output_directory_path: str, model_input_size: int = 200) -> None:
     # Prepare the testing data file list
     filelist = os.listdir(npy_data_directory)
     # Pairing x and y files
-    filelist = [
-        (x, y) for x in filelist if 'x_' in x
-        for y in filelist if x.split('_')[1] == y.split('_')[1]
-        and "y_" in y
-    ]
+    filelist = [(x,y,z) for x in filelist if 'x_' in x for y in filelist if x.split('_5')[1] == y.split('_5')[1] and "y_5" in y for z in filelist if y.split('_5')[1] == z.split('_5')[1] and "y_lugs" in z]
     # Sorting based on the numeric values extracted from filenames
     filelist.sort(key=lambda x: extract_numbers(x[0]))  # sorting by the first file's numbers
 

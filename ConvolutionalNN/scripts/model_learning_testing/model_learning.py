@@ -8,10 +8,11 @@ from .dataloading import load_partial_data
 
 
 class LearnerDataset(Dataset):
-    ''' 
+    """ 
     Dataset class to use the Dataloader in Learnerclass. The class imports
     data from a given path and splits it into test and train tensors.
-    '''
+    """
+
     def __init__(self,
                  inputsize:int,
                  data_path:str,
@@ -21,24 +22,25 @@ class LearnerDataset(Dataset):
                  number_of_records_per_file: int = 15000,
                  number_of_files: int = 100):
 
+        # load the data for training and evaluation of the model
         x, y = load_partial_data(count=number_of_files,records_per_file=number_of_records_per_file,
                                  filelist=filelist, path_data=data_path, inputsize=inputsize)
         targets = y[:, pin]
-
-        X_train, X_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)
-        X_train, _, y_train, _ = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
+        # split the data into training and test data
+        x_train, x_test, y_train, y_test = train_test_split(x, targets, test_size=0.2, random_state=17)
+        # this split represents the validation_split parameter in the tensorflow fit function.
+        x_train, _, y_train, _ = train_test_split(x_train, y_train, test_size=0.2, shuffle=False)
 
         # test shape of training data, adding an extra dimension so the channel has a dimension in the tensor. 
         # The conv layer in the model expects a channel dimension with size = 1
-        self.inputs_train = torch.tensor(X_train, device=device).unsqueeze(1)
-        self.inputs_test = torch.tensor(X_test, device=device).unsqueeze(1)
+        self.inputs_train = torch.tensor(x_train, device=device).unsqueeze(1)
+        self.inputs_test = torch.tensor(x_test, device=device).unsqueeze(1)
         self.lable_train = torch.tensor(y_train, device=device)
         self.label_test = torch.tensor(y_test, device=device)
         self.len_train = self.inputs_train.shape[0]
         self.len_test = self.inputs_test.shape[0]
 
-        # Bool for using the dataset as testset or trainset
-        # So the dataset could be uesed for traing and testing
+        # Bool to switch between using the training or testing dataset
         self.test_set = False
 
     def __getitem__(self, index):
