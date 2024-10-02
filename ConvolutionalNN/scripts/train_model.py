@@ -21,14 +21,18 @@ def training(output_directory_path: str, number_of_overlaps: str = "1-12",
         the directory the data folder is in that was created during the execution of create_dataset.py
     number_of_overlaps: str
         defining the range of overlaps as a string
-    required_test_accuracy_pin: float
-        is the accuracy the model of the pin has to achieve during training. If the accuracy is not achieved it tries again with a new model instance
     model_input_size: int
         the size of the input the model should be trained with
+    epochs: int
+        number of training epochs
+    batch_size: int
+        size of one batch during training
+    required_test_accuracy_pin: float
+        is the accuracy the model of the pin has to achieve during training. If the accuracy is not achieved it tries again with a new model instance
     dataset_files: int
-        the amount of files that should be randomly sampled from the availabe data for training
+        the amount of files are randomly sampled from the availabe data for training
     dataset_records_per_file: int
-        amount of records from each file that is used for training
+        amount of records from each file that are used for training (one record = one training sample)
     num_filters: int
         number of filters of the convolutional layers of the model
 
