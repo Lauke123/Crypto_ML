@@ -3,12 +3,10 @@ import os
 import re
 
 import numpy as np
-import pandas as pd
 import torch
 from model_learning_testing.dataloading import load_partial_data
 from model_learning_testing.model_testing import ModelTester
 from model_learning_testing.plots import PlotGenerator
-from model_learning_testing.model_learning import normalize_and_round
 
 
 # Function to extract numeric parts from filenames for sorting
@@ -34,7 +32,7 @@ def test_mixed_lugs(model_input_size: int, npy_data_directory: str,
     mean_lug_pair = 0
     if lug_training:
         print("lug testing...")
-        _, lug_pair_accuracies = modeltester.test_avg_difference_lugs(lug_predictions, y)
+        lug_pair_accuracies = modeltester.test_avg_difference_lugs(lug_predictions, y)
         mean_lug_pair = np.mean(lug_pair_accuracies)
         print(mean_lug_pair)
 

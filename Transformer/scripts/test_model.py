@@ -8,7 +8,6 @@ import torch
 from model_learning_testing.dataloading import load_partial_data
 from model_learning_testing.model_testing import ModelTester
 from model_learning_testing.plots import PlotGenerator
-from model_learning_testing.model_learning import normalize_and_round
 
 
 # Function to extract numeric parts from filenames for sorting
@@ -33,8 +32,7 @@ def test_mixed_lugs(model_input_size: int, test_results_directory: str, npy_data
     print(lug_training)
     if lug_training:
         print("lug testing...")
-        lug_distribution, lug_pair_accuracies = modeltester.test_avg_difference_lugs(lug_predictions, y)
-        plotgenerator.plot_box_whisker_lugs(lug_distribution, "lug_distribution_boxplot")
+        lug_pair_accuracies = modeltester.test_avg_difference_lugs(lug_predictions, y)
         plotgenerator.plot_lug_pair_accuracies(lug_pair_accuracies, "lug_pair_accuracies")
 
     # Compute accuracies of the dataset that has mixed overlaps

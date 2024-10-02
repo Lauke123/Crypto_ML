@@ -4,18 +4,26 @@ import tqdm
 
 
 def load_partial_data(count,filelist, path_data, inputsize, records_per_file=None, lugs=False):
-    """
-    Load a specific number of records from a set number of files.
+    """Load and return part of the training and testing data.
 
-    Parameters:
-    - count: The number of files to randomly select and load data from.
-    - records_per_file: The number of records to load from each file.
-    - lugs: if data should be loaded with the information of lug positions
+    Parameters
+    ----------
+    count:
+        The number of files to randomly select and load data from.
+    path_data: str
+        path to the folder the files in filelist are from.
+    inputsize: int
+        inputsize of the model, necesaary to trim data to the right shape.
+    records_per_file:
+        The number of records to load from each file.
+    lugs: bool
+        if true append the amount of all different possible lug pairs and the targets
 
-    Returns:
+    Returns
+    -------
     - Tuple of np.arrays: The loaded x and y data.
-    """
 
+    """
     # Assuming filelist is a list of tuples/lists with paths for x and y data files
     files = random.sample(filelist, k=count)
 

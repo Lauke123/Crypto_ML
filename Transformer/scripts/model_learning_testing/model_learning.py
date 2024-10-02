@@ -1,64 +1,32 @@
+import random
+
+import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
-import random
-import numpy as np
 
 from .dataloading import load_partial_data
 
-
-# custom loss for lugs predictions
-class CustomLoss(nn.Module):
-    def __init__(self, threshold=27, penalty_factor=2.0):
-        super(CustomLoss, self).__init__()
-        self.threshold = threshold
-        self.penalty_factor = penalty_factor
-        self.mse = nn.MSELoss()
-
-    def forward(self, predictions, targets):
-        # Base loss (MSE)
-        base_loss = self.mse(predictions, targets)
-        
-        # Create a mask for values where predictions are greater than the threshold
-        over_threshold = predictions > self.threshold
-        
-        # Calculate the additional penalty for over-prediction
-        penalty = torch.abs(predictions - targets) * self.penalty_factor
-        
-        # Apply penalty only to predictions over the threshold
-        penalty_loss = penalty * over_threshold.float()
-        
-        # Final loss is the base loss + the penalized loss
-        total_loss = base_loss + penalty_loss.mean()
-        
-        return total_loss
 
 # normalize the predicted amount of lug pairs so the the total sum is 27
 def normalize_and_round(tensor, target_sum=27):
     # Get the current sum of each row
     current_sum = tensor.sum(dim=1, keepdim=True)
-    
     # Calculate the scaling factor for each row
     scaling_factor = target_sum / current_sum
-    
     # Normalize each row by scaling
     normalized_tensor = tensor * scaling_factor
-    
-    # Step 1: Floor the values to get integer parts
+    # Floor the values to get integer parts
     int_tensor = torch.floor(normalized_tensor)
-    
-    # Step 2: Calculate the difference for each row (how much is needed to reach 27)
+    # Calculate the difference for each row (how much is needed to reach 27)
     diff = (target_sum - int_tensor.sum(dim=1)).int()
-    
-    # Step 3: Get the fractional parts of the normalized tensor
+    # Get the fractional parts of the normalized tensor
     fractional_part = normalized_tensor - int_tensor
-    
     # Step 4: Sort indices by fractional parts in descending order for each row
     _, indices = torch.sort(fractional_part, descending=True, dim=1)
-    
-    # Step 5: Add 1 to the largest fractional values for each row until the sum equals 27
+    # Add 1 to the largest fractional values for each row until the sum equals 27
     for i in range(tensor.size(0)):  # Loop over each row
         for j in range(diff[i].item()):  # Add 1 to the top `diff[i]` indices in each row
             int_tensor[i, indices[i, j]] += 1
@@ -148,8 +116,7 @@ class Learner:
 
     def fit(self, batchsize: int,
             epochs:int,
-            shuffle:bool,
-            device:torch.device):
+            shuffle:bool):
         # creating set of data batches with dataloader
         dataloader = DataLoader(batch_size=batchsize, dataset=self.dataset, shuffle=shuffle)
         for epoch in tqdm(range(epochs), unit="epoch", desc="Progress of training"):
@@ -157,23 +124,23 @@ class Learner:
             for _, (inputs, labels) in enumerate(dataloader):
                     # compute predictions and loss from the trainset
                     input_length = self.dataset.get_inputsize()
+                    # when training with input length 500 then it uses batches with 
+                    # different amount of input lengths (from 30 to 500 in increasing order)
                     if input_length == 500:
                         input_length = 10 * random.randint(3, self.dataset.get_inputsize()//10)
                         inputs = inputs[:,:input_length]
+                    # compute prediction and reshape prediction and target tensor for evaluation
                     prediction = self.model.forward(inputs, input_length)
-                    # Reshape labels to embedingsize
-                    #For example: label = 1 -> label = 1,1,1...1,1 (dimensionsize:512)
-
                     prediction = torch.squeeze(prediction, dim=2)
                     prediction_pins = prediction[:, 0:self.dataset.wheelsize]
                     labels_pins = labels[:, 0:self.dataset.wheelsize]
                     loss = self.criterion(prediction_pins, labels_pins)
-                    
+                    # if trained with predicting lugs then also calculate the loss of this prediction
                     if self.dataset.lug_training:
                         prediction_lugs = prediction[:, self.dataset.wheelsize:]
                         labels_lugs = labels[:, self.dataset.wheelsize:]
                         loss += self.criterion2(prediction_lugs, labels_lugs)
-                        
+
                     # optimze the model with backpropagation
                     optimizer.zero_grad()
                     loss.backward()
@@ -195,19 +162,15 @@ class Learner:
                 prediction_pins = eval_pred[:, 0:self.dataset.wheelsize]
                 labels_pins = labels[:, 0:self.dataset.wheelsize]
                 loss = self.criterion(prediction_pins, labels_pins)
-                
+
                 if self.dataset.lug_training:
                     prediction_lugs = eval_pred[:, self.dataset.wheelsize:]
                     labels_lugs = labels[:, self.dataset.wheelsize:]
                     loss += self.criterion2(prediction_lugs, labels_lugs)
                     prediction_lugs = normalize_and_round(prediction_lugs)
-                    print(prediction_lugs[0])
-                    print(labels_lugs[0])
-                
+
                 prediction_pins = torch.flatten(prediction_pins)
                 labels_pins = torch.flatten(labels_pins)
-
-
                 prediction_pins = torch.round(prediction_pins)
 
                 # count the number of correct predictions of the pins
